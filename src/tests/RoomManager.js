@@ -34,6 +34,4 @@ describe('RoomsManager', function() {
         assert.notEqual(room1, room2);
         assert.equal(room2.members.length, 0);
     });
-
-    console.log(process.env);
 });
