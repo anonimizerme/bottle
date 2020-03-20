@@ -22,9 +22,11 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Install dependencies
+    # Install global and local dependencies
     - name: Install dependencies
-      run: npm install mocha
+      run: |
+        npm install mocha
+        npm install
 
     # Run tests
     - name: Run tests
