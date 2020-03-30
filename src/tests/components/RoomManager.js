@@ -1,8 +1,8 @@
 const assert = require('assert');
 
-const Member = require('../models/Member');
-const RoomsManager = require('../components/RoomsManager');
-const ROOM_LIMIT = require('../components/RoomsManager').ROOM_LIMIT;
+const Member = require('../../models/Member');
+const RoomsManager = require('../../components/RoomsManager');
+const ROOM_LIMIT = require('../../components/RoomsManager').ROOM_LIMIT;
 
 describe('RoomsManager', function() {
 

@@ -1,7 +1,7 @@
 const assert = require('assert');
 const should = require('should');
 
-const Balance = require('../models/Balance');
+const Balance = require('../../models/Balance');
 
 describe('Balance', function() {
     describe('Check constructor', function () {

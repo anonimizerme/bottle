@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const Member = require('../models/Member');
+const Member = require('../../models/Member');
 
 describe('Member', function() {
 

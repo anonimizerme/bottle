@@ -7,43 +7,48 @@ Command types:
 * $ - from server
   
 Client commands: 
----
-1. **@join**  
+----------------
+1. **@register**
+    - Server registers member
+
+3. **@join**
     - Server tries to find suitable room or creates new one
         - suitable room - room with lack of Client's gender
     - Server sends **$room** command
     
-2. **@spin**
+4. **@spin**
     - Server chooses random Client with different gender
     - Server sends **$spinResult** command
     
-3. **@makeDecision**
+5. **@makeDecision**
     - Server saves information about client decisions
     - If both Clients made decisions Server sends **$makeHost**
 
 
 Server commands: 
---- 
-1. **$room** (room) 
+---
+1. **$registered** (personal)
+    - Command includes success information
+2. **$room** (room)
     - Command includes information about room:    
         - room
         - members
     - Client sync local room information with received one
     
-2. **$makeHost** (room)
+3. **$makeHost** (room)
     - Command to set one of the Clients a host. Host can initialize spin of the bottle.
     - Server chooses random Client if there is not host before, or next one
     - Command includes:
         - member id
     - Client set local flag if it's host now
     
-3. **$spinResult** (room)
+4. **$spinResult** (room)
     - Command to set result of the spin
     - Command includes:
         - random member id
     - Client set local paired member id
     
-4. **$decision** (room)
+5. **$decision** (room)
     - Command to set result of the Client decisions
     - Command includes:
         - member id
@@ -56,9 +61,13 @@ Workflow:
 **Client start a game**
 
 1. Client connects to Server
-2. Client sends command **@join**
-3. Server receives **@join** command
-4. Server sends **$room** command
+2. Client sends command **@register**
+3. Server assoc current socket with member
+4. Server sends command **$registered**
+5. Client receives command **$registered**
+6. Client sends command **@join**
+7. Server receives **@join** command
+8. Server sends **$room** command
 
 **Client spin the bottle**
 
