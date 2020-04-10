@@ -108,5 +108,85 @@ class RegisteredEvent extends BaseEvent {
     }
 }
 
+class JoinEvent extends BaseEvent {
+    get eventName() {
+        return serverEvents.JOIN;
+    }
+
+    get isSentFromClient() {
+        return true;
+    }
+}
+
+class RoomEvent extends BaseEvent {
+    get eventName() {
+        return clientEvents.ROOM;
+    }
+
+    get isSentFromServer() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                id: {type: 'string', required: true},
+                host: {type: 'object', required: true},
+                members: {type: 'array', required: true, items: {type: 'object'}, minItems: 1},
+            }
+        }
+    }
+
+    get id() {
+        return this.prop('id');
+    }
+
+    get host() {
+        return this.prop('host');
+    }
+
+    get members() {
+        return this.prop('members');
+    }
+}
+
+class SpinEvent extends BaseEvent {
+    get eventName() {
+        return serverEvents.SPIN;
+    }
+
+    get isSentFromClient() {
+        return true;
+    }
+}
+
+class SpinResultEvent extends BaseEvent {
+    get eventName() {
+        return clientEvents.SPIN_RESULT;
+    }
+
+    get isSentFromServer() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                member: {type: 'object', required: true},
+            }
+        }
+    }
+
+    get member() {
+        return this.prop('member');
+    }
+}
+
 module.exports.RegisterEvent = RegisterEvent;
 module.exports.RegisteredEvent = RegisteredEvent;
+module.exports.JoinEvent = JoinEvent;
+module.exports.RoomEvent = RoomEvent;
+module.exports.SpinEvent = SpinEvent;
+module.exports.SpinResultEvent = SpinResultEvent;

@@ -28,6 +28,14 @@ class Member {
     set picture(picture) {
         this._picture = picture;
     }
+
+    get json() {
+        return {
+            id: this.id,
+            name: this.name,
+            picture: this.picture
+        }
+    }
 }
 
 module.exports = Member;

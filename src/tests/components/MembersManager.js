@@ -12,7 +12,7 @@ describe('MembersManager', function() {
     });
 
     it('Adding incorrect key', function () {
-        (() => membersManager.addMember(new Member(), 1)).should.throw();
+        (() => membersManager.addMember(new Member(), undefined)).should.throw();
     });
 
     it('Adding incorrect member', function () {
@@ -27,7 +27,7 @@ describe('MembersManager', function() {
     });
 
     it('Remove member', function () {
-        const key = {key: 1};
+        const key = 'key_1';
         const member = new Member();
         membersManager.addMember(member, key);
         membersManager.removeMember(key);

@@ -1,4 +1,5 @@
 const assert = require('assert');
+const should = require('should');
 
 const Room = require('../../models/Room');
 const Member = require('../../models/Member');
@@ -10,6 +11,10 @@ describe('Room', function() {
     describe('Check constructor', function () {
         before(function () {
             room = new Room();
+        });
+
+        it('Get ID', function () {
+            assert.ok(room.id);
         });
 
         it('Members', function () {
@@ -62,5 +67,33 @@ describe('Room', function() {
             assert.equal(room.members.length, 0);
             assert.equal(room.host, null);
         });
+
+        it('Check room has not member', function () {
+            const member = new Member(3, 'n3', 'u3');
+            assert.equal(room.hasMember(member), false);
+        });
+
+        it('Check room has member', function () {
+            const member = new Member(4, 'n4', 'u4');
+            room.addMember(member);
+            assert.ok(room.hasMember(member));
+        });
+
+        it('Get random member fail', function () {
+            const member = new Member();
+            room.addMember(member);
+            (() => {
+                room.getRandomMemberExcept(member)
+            }).should.throw();
+        });
+
+        it('Get random member success', function () {
+            const member1 = new Member();
+            const member2 = new Member();
+            room.addMember(member1);
+            room.addMember(member2);
+
+            assert.equal(room.getRandomMemberExcept(member1), member2);
+        })
     });
 });

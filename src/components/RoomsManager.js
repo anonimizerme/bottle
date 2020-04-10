@@ -21,6 +21,12 @@ class RoomsManager {
 
         return room;
     }
+
+    getRoomWithMember(member) {
+        let room = this._rooms.find((room) => room.hasMember(member));
+
+        return room;
+    }
 }
 
 module.exports = RoomsManager;

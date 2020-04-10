@@ -24,6 +24,16 @@ describe('RoomsManager', function() {
         assert.equal(room1, room2);
     });
 
+    it('Get room for member', function () {
+        const member1 = new Member();
+        const member2 = new Member();
+        const room = roomManager.getAvailableRoom();
+        room.addMember(member1);
+
+        assert.equal(roomManager.getRoomWithMember(member1), room);
+        assert.equal(roomManager.getRoomWithMember(member2), undefined);
+    });
+
     it('New room when first is full', function () {
         const room1 = roomManager.getAvailableRoom();
         for (let i = 0; i < ROOM_LIMIT; i++) {

@@ -22,7 +22,7 @@ Client commands:
     
 5. **@makeDecision**
     - Server saves information about client decisions
-    - If both Clients made decisions Server sends **$makeHost**
+    - If both Clients made decisions Server sends **$setHost**
 
 
 Server commands: 
@@ -35,7 +35,7 @@ Server commands:
         - members
     - Client sync local room information with received one
     
-3. **$makeHost** (room)
+3. **$setHost** (room)
     - Command to set one of the Clients a host. Host can initialize spin of the bottle.
     - Server chooses random Client if there is not host before, or next one
     - Command includes:
@@ -71,12 +71,7 @@ Workflow:
 
 **Client spin the bottle**
 
-1. After **@join** another client Server checks if there is more than one Client
-2. Server conditions:
-    - If only one - break.
-    - If host already exists in the room - break.
-4. Server sends **$setHost**
-5. Clients receive **$setHost**
+1. After **@join** client checks
 5. Client conditions:
     - If Client is not host - break
 6. Client sends **@spin**
@@ -93,4 +88,8 @@ Workflow:
 5. Server receives **@makeDecision**
 6. Server sends **$decision** 
 7. Clients received **$decision**
+8. Server choose next host
+9. Server sends **$setHost**
+10. Clients receive **$setHost**
+
     

@@ -4,12 +4,12 @@ const Member = require('../models/Member');
 
 class MembersManager {
     constructor() {
-        this._members = new WeakMap();
+        this._members = new Map();
     }
 
     addMember(member, key) {
         assert.ok(member instanceof Member);
-        assert.ok(_.isObject(key));
+        assert.ok(!_.isUndefined(key));
 
         this._members.set(key, member)
     }
