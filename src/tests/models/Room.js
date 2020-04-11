@@ -88,12 +88,28 @@ describe('Room', function() {
         });
 
         it('Get random member success', function () {
-            const member1 = new Member();
-            const member2 = new Member();
+            const member1 = new Member(1);
+            const member2 = new Member(2);
             room.addMember(member1);
             room.addMember(member2);
 
             assert.equal(room.getRandomMemberExcept(member1), member2);
+            assert.equal(room.coupleMember, member2);
+        })
+
+        it('Change host', function () {
+            const member1 = new Member(1);
+            const member2 = new Member(2);
+            room.addMember(member1);
+            room.addMember(member2);
+
+            assert.equal(room.host, member1);
+
+            room.changeHost();
+            assert.equal(room.host, member2);
+
+            room.changeHost();
+            assert.equal(room.host, member1);
         })
     });
 });

@@ -7,6 +7,7 @@ const clientEvents = require('../../events/client');
 const RegisterEvent = require('../../events/events').RegisterEvent;
 const JoinEvent = require('../../events/events').JoinEvent;
 const SpinEvent = require('../../events/events').SpinEvent;
+const MakeDecisionEvent = require('../../events/events').MakeDecisionEvent;
 
 const PORT = 3030;
 const URL = `http://localhost:${PORT}`;
@@ -41,6 +42,8 @@ describe('Server', function () {
 
             assert.ok(event.success);
             assert.ok(client.registered);
+
+            client.removeAllListeners();
 
             done();
         });
@@ -126,8 +129,61 @@ describe('Server', function () {
         return Promise.all(promises).then((results) => {
             assert.equal(results[0].member.id, 'id 2');
             assert.equal(results[1].member.id, 'id 2');
+
+            client.removeAllListeners();
+            client2.removeAllListeners();
         })
     });
 
+    it ('Make decision first member', async function () {
+        this.timeout(500);
+
+        let promises = [
+            new Promise(res => {
+                client.on(clientEvents.DECISION, event => res(event));
+            }),
+            new Promise(res => {
+                client2.on(clientEvents.DECISION, event => res(event));
+            })
+        ];
+
+        client.sendEvent(new MakeDecisionEvent({ok: true}));
+
+        return Promise.all(promises).then((results) => {
+            assert.ok(results[0].hostDecision);
+            assert.equal(results[0].isReady, false);
+            assert.equal(results[0].isCouple, false);
+
+            client.removeAllListeners();
+            client2.removeAllListeners();
+        })
+    });
+
+    it ('Make decision second member and new host set', async function () {
+        this.timeout(500);
+
+        let promises = [
+            new Promise(res => {
+                client2.on(clientEvents.DECISION, event => res(event));
+            }),
+            new Promise(res => {
+                client2.on(clientEvents.SET_HOST, event => res(event));
+            }),
+        ];
+
+        client2.sendEvent(new MakeDecisionEvent({ok: true}));
+
+        return Promise.all(promises).then((results) => {
+            assert.ok(results[0].hostDecision);
+            assert.ok(results[0].memberDecision);
+            assert.equal(results[0].isReady, true);
+            assert.equal(results[0].isCouple, true);
+
+            assert.equal(results[1].member.id, 'id 2');
+
+            client.removeAllListeners();
+            client2.removeAllListeners();
+        })
+    });
 
 });

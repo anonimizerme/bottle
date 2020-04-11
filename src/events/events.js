@@ -184,9 +184,96 @@ class SpinResultEvent extends BaseEvent {
     }
 }
 
+class MakeDecisionEvent extends BaseEvent {
+    get eventName() {
+        return serverEvents.MAKE_DECISION;
+    }
+
+    get isSentFromClient() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                ok: {type: 'boolean', required: true},
+            }
+        }
+    }
+
+    get ok() {
+        return this.prop('ok');
+    }
+}
+
+class DecisionEvent extends BaseEvent {
+    get eventName() {
+        return clientEvents.DECISION;
+    }
+
+    get isSentFromServer() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                hostDecision: {type: 'boolean'},
+                memberDecision: {type: 'boolean'},
+                isReady: {type: 'boolean', required: true},
+                isCouple: {type: 'boolean', required: true},
+            }
+        }
+    }
+
+    get hostDecision() {
+        return this.prop('hostDecision');
+    }
+
+    get memberDecision() {
+        return this.prop('memberDecision');
+    }
+
+    get isReady() {
+        return this.prop('isReady');
+    }
+
+    get isCouple() {
+        return this.prop('isCouple');
+    }
+}
+
+class SetHostEvent extends BaseEvent {
+    get eventName() {
+        return clientEvents.SET_HOST;
+    }
+
+    get isSentFromServer() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                member: {type: 'object', required: true},
+            }
+        }
+    }
+
+    get member() {
+        return this.prop('member');
+    }
+}
+
 module.exports.RegisterEvent = RegisterEvent;
 module.exports.RegisteredEvent = RegisteredEvent;
 module.exports.JoinEvent = JoinEvent;
 module.exports.RoomEvent = RoomEvent;
 module.exports.SpinEvent = SpinEvent;
 module.exports.SpinResultEvent = SpinResultEvent;
+module.exports.MakeDecisionEvent = MakeDecisionEvent;
+module.exports.DecisionEvent = DecisionEvent;
+module.exports.SetHostEvent = SetHostEvent;

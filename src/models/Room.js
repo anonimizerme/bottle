@@ -8,6 +8,7 @@ class Room {
         this._id = uuid.v4();
         this._members = [];
         this._hostMemberId = null;
+        this._coupleMemberId = null;
     }
 
     get id() {
@@ -29,6 +30,10 @@ class Room {
         }
 
         this._hostMemberId = memberId;
+    }
+
+    get coupleMember() {
+        return _.find(this._members, {id: this._coupleMemberId});
     }
 
     get json() {
@@ -92,7 +97,25 @@ class Room {
         let listWithoutMember = this._members.slice();
         listWithoutMember.splice(localMemberId, 1);
 
-        return listWithoutMember[_.random(listWithoutMember.length - 1)];
+        const coupleMember = listWithoutMember[_.random(listWithoutMember.length - 1)];
+        this._coupleMemberId = coupleMember.id;
+
+        return coupleMember;
+    }
+
+    changeHost() {
+        assert.ok(this._members.length > 1);
+
+        const localMemberId = _.findIndex(this._members, {id: this._hostMemberId});
+        let newLocalMemberHostId;
+
+        if (_.isUndefined(this._members[localMemberId+1])) {
+            newLocalMemberHostId = 0;
+        } else {
+            newLocalMemberHostId = localMemberId + 1;
+        }
+
+        this._hostMemberId = this._members[newLocalMemberHostId].id;
     }
 }
 
