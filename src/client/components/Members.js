@@ -3,14 +3,16 @@ import * as PIXI from 'pixi.js';
 class Members {
     constructor(app) {
         this.app = app;
+
+        this.loaded = false;
+        this.playersCount = 4;
     }
 
     init(setup) {
         const pixi = this.app.pixi;
 
-        const playersCount = 4;
         const loader = PIXI.Loader.shared;
-        for (let i=0; i < playersCount; i++) {
+        for (let i=0; i < this.playersCount; i++) {
             loader.add(`player_${i}`, `assets/${i}.svg`)
         }
 
@@ -22,8 +24,9 @@ class Members {
             {x: app => pixi.screen.width/2, y: app => pixi.screen.height - margin},
             {x: app => margin, y: app => pixi.screen.height/2},
         ];
-        loader.load((loader, resources) => {
-            for (let i=0; i < playersCount; i++) {
+        loader.load();
+        loader.onComplete.add((data, resources) => {
+            for (let i=0; i < this.playersCount; i++) {
                 console.log(resources);
                 const sprite = new PIXI.Sprite(resources[`player_${i}`].texture);
                 sprite.anchor.set(0.5);
@@ -34,9 +37,11 @@ class Members {
                 playersImages[`player_${i}`] = sprite;
                 pixi.stage.addChild(playersImages[`player_${i}`]);
             }
-
-            setup();
         });
+    }
+
+    render() {
+
     }
 }
 
