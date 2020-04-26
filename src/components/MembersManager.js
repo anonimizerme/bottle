@@ -7,6 +7,12 @@ class MembersManager {
         this._members = new Map();
     }
 
+    hasMember(key) {
+        assert.ok(!_.isUndefined(key));
+
+        return this._members.has(key);
+    }
+
     addMember(member, key) {
         assert.ok(member instanceof Member);
         assert.ok(!_.isUndefined(key));

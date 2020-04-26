@@ -3,7 +3,7 @@ Client Architecture
 
 Starting the Game:
 ------------------
-1. Load all assets
+1. Load base assets
 2. Connect to Server
 3. Join to game and get information about the Room
 4. Load members photos

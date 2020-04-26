@@ -14,6 +14,8 @@ let membersManager;
 let roomsManager;
 let decisionsManager;
 
+let membersToSocket = {};
+
 const onConnect = (socket) => {
     logger.log(`Client ${socket.id} is connected`);
 
@@ -38,8 +40,14 @@ const onRegister = (socket) => (data) => {
     logger.log(`onRegister with ${JSON.stringify(data)}`);
 
     const regEvent = new events.RegisterEvent(data);
-    const member = new Member(regEvent.id, regEvent.name);
-    membersManager.addMember(member, socket.id);
+    let member;
+    if (!membersManager.hasMember(regEvent.id)) {
+        member = new Member(regEvent.id, regEvent.name);
+        membersManager.addMember(member, member.id);
+        membersToSocket[member.id] = socket.id;
+    } else {
+        membersToSocket[regEvent.id] = socket.id;
+    }
 
     serverInstance.sendEvent(socket, new events.RegisteredEvent({
         success: true
@@ -49,16 +57,26 @@ const onRegister = (socket) => (data) => {
 const onJoin = (socket) => (data) => {
     logger.log(`onJoin with ${JSON.stringify(data)}`);
 
+    // Get memberId for socketId
+    const memberId = _.findKey(membersToSocket, socketId => socketId === socket.id);
+    if (_.isUndefined(memberId)) {
+        // todo: think about errors in websocket
+        return;
+    }
+
     // Try to find member
-    const member = membersManager.getMember(socket.id);
+    const member = membersManager.getMember(memberId);
 
     if (_.isUndefined(member)) {
         // todo: think about errors in websocket
         return;
     }
 
-    const room = roomsManager.getAvailableRoom();
-    room.addMember(member);
+    let room = roomsManager.getRoomWithMember(member);
+    if (_.isUndefined(room)) {
+        room = roomsManager.getAvailableRoom();
+        room.addMember(member);
+    }
 
     // add socket to room
     serverInstance.joinRoom(socket, room.id);
@@ -69,8 +87,15 @@ const onJoin = (socket) => (data) => {
 const onSpin = (socket) => (data) => {
     logger.log(`onSpin with ${JSON.stringify(data)}`);
 
+    // Get memberId for socketId
+    const memberId = _.findKey(membersToSocket, socketId => socketId === socket.id);
+    if (_.isUndefined(memberId)) {
+        // todo: think about errors in websocket
+        return;
+    }
+
     // Try to find member
-    const member = membersManager.getMember(socket.id);
+    const member = membersManager.getMember(memberId);
     if (_.isUndefined(member)) {
         // todo: think about errors in websocket
         return;
@@ -104,8 +129,15 @@ const onSpin = (socket) => (data) => {
 const onMakeDecision = (socket) => (data) => {
     logger.log(`onMakeDecision with ${JSON.stringify(data)}`);
 
+    // Get memberId for socketId
+    const memberId = _.findKey(membersToSocket, socketId => socketId === socket.id);
+    if (_.isUndefined(memberId)) {
+        // todo: think about errors in websocket
+        return;
+    }
+
     // Try to find member
-    const member = membersManager.getMember(socket.id);
+    const member = membersManager.getMember(memberId);
     if (_.isUndefined(member)) {
         // todo: think about errors in websocket
         return;

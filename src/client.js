@@ -45,7 +45,11 @@ class Client {
     }
 
     on(eventName, callback) {
-        this._ee.addListener(eventName, callback);
+        this._ee.on(eventName, callback);
+    }
+
+    once(eventName, callback) {
+        this._ee.once(eventName, callback);
     }
 
     removeListener(eventName, callback) {

@@ -37,13 +37,11 @@ describe('Server', function () {
     it('Register event', function (done) {
         this.timeout(500);
 
-        client.on(clientEvents.REGISTERED, (event) => {
+        client.once(clientEvents.REGISTERED, (event) => {
             clearTimeout(fail);
 
             assert.ok(event.success);
             assert.ok(client.registered);
-
-            client.removeAllListeners();
 
             done();
         });
@@ -61,11 +59,22 @@ describe('Server', function () {
     it('Join event', function (done) {
         this.timeout(500);
 
-        client.on(clientEvents.ROOM, (event) => {
+        client.once(clientEvents.ROOM, (event) => {
             assert.ok(event.id);
             assert.equal(event.members.length, 1);
 
-            client.removeAllListeners();
+            done();
+        });
+
+        client.sendEvent(new JoinEvent());
+    });
+
+    it('Join once again event', function (done) {
+        this.timeout(500);
+
+        client.once(clientEvents.ROOM, (event) => {
+            assert.ok(event.id);
+            assert.equal(event.members.length, 1);
 
             done();
         });
@@ -78,16 +87,14 @@ describe('Server', function () {
 
         client2 = (new Client()).init(URL);
 
-        client2.on(clientEvents.REGISTERED, (event) => {
+        client2.once(clientEvents.REGISTERED, (event) => {
             client2.sendEvent(new JoinEvent());
         });
 
-        client2.on(clientEvents.ROOM, (event) => {
+        client2.once(clientEvents.ROOM, (event) => {
             assert.ok(event.id);
             assert.equal(event.members.length, 2);
             assert.equal(event.host.id, 'id 1');
-
-            client2.removeAllListeners();
 
             done();
         });
