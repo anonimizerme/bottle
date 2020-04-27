@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 import config from '../config';
 import {actions} from './StateMachine';
@@ -6,6 +7,8 @@ import Members from './Members';
 import Bottle from './Bottle';
 import {RegisterEvent, JoinEvent} from '../../events/events';
 import clientEvents from '../../events/client';
+
+import {setRoom} from '../store/reducers/room';
 
 class Application {
     constructor(store, stateMachine) {
@@ -19,26 +22,21 @@ class Application {
             this.stateMachine.machine.send('REGISTERED');
         });
 
-        this.client.once(clientEvents.ROOM, (data) => {
-            this.stateMachine.machine.send('IN_ROOM');
+        this.client.on(clientEvents.ROOM, (event) => {
+            this.store.dispatch(setRoom(event));
+
+            this.stateMachine.machine.send('JOIN_ROOM');
         });
 
         this.stateMachine.once(actions.REGISTERED, () => {
             this.client.sendEvent(new JoinEvent());
         });
 
-        this.stateMachine.once(actions.IN_ROOM, () => {
+        this.stateMachine.once(actions.JOIN_ROOM, () => {
             console.log('we are in room!');
         });
 
         this._start();
-
-        let prev;
-        this.store.subscribe(() => {
-            let cur = this.store.getState().room;
-            console.log(cur == prev);
-            prev = cur;
-        });
 
         this.pixi = new PIXI.Application({
             width: 600,
@@ -55,6 +53,10 @@ class Application {
 
         this.bottle = new Bottle(this);
         this.bottle.init();
+
+        this.store.subscribe(() => {
+            this.members.list = _.get(this.store.getState(), 'room.members', []);
+        });
     }
 
     _start() {

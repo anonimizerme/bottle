@@ -1,47 +1,56 @@
+import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 
 class Members {
     constructor(app) {
         this.app = app;
 
+        this._list = [];
         this.loaded = false;
-        this.playersCount = 4;
+
+        this._objects = {};
     }
 
-    init(setup) {
-        const pixi = this.app.pixi;
-
-        const loader = PIXI.Loader.shared;
-        for (let i=0; i < this.playersCount; i++) {
-            loader.add(`player_${i}`, `assets/${i}.svg`)
+    set list(members) {
+        if (this._list !== members) {
+            this._list = members;
+            this.render();
         }
-
-        let playersImages = {};
-        let margin = 40;
-        let positionMatrix = [
-            {x: app => pixi.screen.width/2, y: app => margin},
-            {x: app => pixi.screen.width - margin, y: app => pixi.screen.height/2},
-            {x: app => pixi.screen.width/2, y: app => pixi.screen.height - margin},
-            {x: app => margin, y: app => pixi.screen.height/2},
-        ];
-        loader.load();
-        loader.onComplete.add((data, resources) => {
-            for (let i=0; i < this.playersCount; i++) {
-                console.log(resources);
-                const sprite = new PIXI.Sprite(resources[`player_${i}`].texture);
-                sprite.anchor.set(0.5);
-                sprite.scale.set(0.3);
-                sprite.x = positionMatrix[i].x(pixi);
-                sprite.y = positionMatrix[i].y(pixi);
-
-                playersImages[`player_${i}`] = sprite;
-                pixi.stage.addChild(playersImages[`player_${i}`]);
-            }
-        });
     }
 
     render() {
+        let margin = 40;
 
+        let positionMatrix = [
+            {x: pixi => pixi.screen.width/2, y: pixi => margin},
+            {x: pixi => pixi.screen.width - margin, y: pixi => pixi.screen.height/2},
+            {x: pixi => pixi.screen.width/2, y: pixi => pixi.screen.height - margin},
+            {x: pixi => margin, y: pixi => pixi.screen.height/2},
+        ];
+
+        // Remove deleted members
+        // todo:
+
+        // Adding new members
+        for (let i in this._list) {
+            let item = this._list[i];
+
+            if (!_.has(this._objects, item.id)) {
+                const sprite = new PIXI.Sprite.from(`assets/${i}.svg`);
+                sprite.anchor.set(0.5);
+                sprite.scale.set(0.3);
+                sprite.x = positionMatrix[i].x(this.app.pixi);
+                sprite.y = positionMatrix[i].y(this.app.pixi);
+
+                this._objects[item.id] = sprite;
+
+                this.app.pixi.stage.addChild(this._objects[item.id]);
+            }
+        }
+    }
+
+    init() {
+        this.render();
     }
 }
 

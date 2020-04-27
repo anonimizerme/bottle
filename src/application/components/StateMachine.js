@@ -4,7 +4,7 @@ import { Machine, interpret } from 'xstate';
 
 export const actions = {
     REGISTERED: 'registered',
-    IN_ROOM: 'in_room'
+    JOIN_ROOM: 'enter_room'
 };
 
 const state = {
@@ -18,7 +18,7 @@ const state = {
         },
         registered: {
             on: {
-                IN_ROOM: 'inRoom'
+                JOIN_ROOM: 'inRoom'
             },
             entry: [actions.REGISTERED]
         },
@@ -27,7 +27,7 @@ const state = {
                 HOST: 'host',
                 VIEWER: 'viewer'
             },
-            entry: [actions.IN_ROOM]
+            entry: [actions.JOIN_ROOM]
         },
         host: {},
         viewer: {}

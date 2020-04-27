@@ -1,46 +1,31 @@
-import { combineReducers } from 'redux'
-// import {
-//     ADD_TODO,
-//     TOGGLE_TODO,
-//     SET_VISIBILITY_FILTER,
-//     VisibilityFilters
-// } from './actions'
-// const { SHOW_ALL } = VisibilityFilters
+import assert from 'assert';
+import events from '../../../events/events';
 
-// function visibilityFilter(state = SHOW_ALL, action) {
-//     switch (action.type) {
-//         case SET_VISIBILITY_FILTER:
-//             return action.filter
-//         default:
-//             return state
-//     }
-// }
+const SET_ROOM = 'set_room';
 
-const ACTION_ADD_MEMBER = 'member_add';
+export const setRoom = (roomEvent) => {
+    assert.ok(roomEvent instanceof events.RoomEvent);
 
-const defaultState = [];
+    return {
+        type: SET_ROOM,
+        event: roomEvent
+    }
+};
 
-function members(state = defaultState, action) {
-    switch (action.type) {
-        case ACTION_ADD_MEMBER:
-            return [
+const defaultState = {};
+
+function room(state = defaultState, {type, event}) {
+    switch (type) {
+        case SET_ROOM:
+            return {
                 ...state,
-                {
-                    text: action.text,
-                }
-            ];
-        // case TOGGLE_TODO:
-        //     return state.map((todo, index) => {
-        //         if (index === action.index) {
-        //             return Object.assign({}, todo, {
-        //                 completed: !todo.completed
-        //             })
-        //         }
-        //         return todo
-        //     })
+                id: event.id,
+                members: event.members,
+                host: event.host
+            };
         default:
             return state
     }
 }
 
-export default members
+export default room
