@@ -1,14 +1,31 @@
 import _ from 'lodash';
 import * as PIXI from 'pixi.js';
+import {getPosition, memberImageSize} from './helpers/memberPositions';
 
 class Members {
     constructor(app) {
-        this.app = app;
+        this._app = app;
+        this._container = null;
 
+        /** List of members */
         this._list = [];
-        this.loaded = false;
 
+        /** List of members PIXI objects */
         this._objects = {};
+
+        this.makeContainer();
+    }
+
+    init() {
+        this.render();
+    }
+
+    makeContainer() {
+        this._container = new PIXI.Container();
+        this._container.x = 0;
+        this._container.y = 0;
+
+        this._app.pixi.stage.addChild(this._container);
     }
 
     set list(members) {
@@ -19,38 +36,25 @@ class Members {
     }
 
     render() {
-        let margin = 40;
-
-        let positionMatrix = [
-            {x: pixi => pixi.screen.width/2, y: pixi => margin},
-            {x: pixi => pixi.screen.width - margin, y: pixi => pixi.screen.height/2},
-            {x: pixi => pixi.screen.width/2, y: pixi => pixi.screen.height - margin},
-            {x: pixi => margin, y: pixi => pixi.screen.height/2},
-        ];
-
         // Remove deleted members
         // todo:
 
         // Adding new members
-        for (let i in this._list) {
+        for (let i=0; i<this._list.length; i++) {
             let item = this._list[i];
 
             if (!_.has(this._objects, item.id)) {
-                const sprite = new PIXI.Sprite.from(`assets/${i}.svg`);
+                const sprite = new PIXI.Sprite.from(`assets/${i % 4}.svg`);
                 sprite.anchor.set(0.5);
-                sprite.scale.set(0.3);
-                sprite.x = positionMatrix[i].x(this.app.pixi);
-                sprite.y = positionMatrix[i].y(this.app.pixi);
+                sprite.width = memberImageSize.width;
+                sprite.height = memberImageSize.height;
+                sprite.position = getPosition(this._app.pixi.screen, i);
 
                 this._objects[item.id] = sprite;
 
-                this.app.pixi.stage.addChild(this._objects[item.id]);
+                this._container.addChild(this._objects[item.id]);
             }
         }
-    }
-
-    init() {
-        this.render();
     }
 }
 

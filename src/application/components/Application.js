@@ -55,7 +55,13 @@ class Application {
         this.bottle.init();
 
         this.store.subscribe(() => {
-            this.members.list = _.get(this.store.getState(), 'room.members', []);
+            const state = this.store.getState();
+
+            // Provide member to member component
+            this.members.list = _.get(state, 'room.members', []);
+
+            // Provide properties to bottle component
+            this.bottle.isShow = _.get(state, 'room.host.id') === _.get(state, 'client.clientId');
         });
     }
 
@@ -74,8 +80,8 @@ class Application {
     }
 
     render() {
-        this.pixi.ticker.add(delta => this.members.render(delta));
-        this.pixi.ticker.add(delta => this.bottle.render(delta));
+        // this.pixi.ticker.add(delta => this.members.render(delta));
+        // this.pixi.ticker.add(delta => this.bottle.render(delta));
     }
 }
 
