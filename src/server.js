@@ -114,6 +114,15 @@ const onSpin = (socket) => (data) => {
         return;
     }
 
+    // Check not already spin
+    if (room.isSpinned) {
+        // todo: think about errors in websocket
+        return;
+    } else {
+        // Set room is spinned
+        room.isSpinned = true;
+    }
+
     // Get random member from room
     let rndMember;
     try {
@@ -151,7 +160,6 @@ const onMakeDecision = (socket) => (data) => {
     }
 
     const makeDecisionEvent = new events.MakeDecisionEvent(data);
-    let decisionEvent;
 
     const decision = decisionsManager.room(room.id);
 
@@ -182,13 +190,19 @@ const onMakeDecision = (socket) => (data) => {
         isCouple: decision.isCouple
     }));
 
+    // Delete decision if it's ready and sent
+    if (decision.isReady) {
+        decisionsManager.delete(room.id);
+        room.resetCoupleMember();
+    }
+
     // Change host
     if (decision.isReady) {
         room.changeHost();
 
         serverInstance.sendRoomEvent(room.id, new events.SetHostEvent({
             member: room.host.json
-        }))
+        }));
     }
 };
 

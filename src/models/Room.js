@@ -19,6 +19,10 @@ class Room {
         return this._members;
     }
 
+    get isSpinned() {
+        return !_.isNull(this._coupleMemberId);
+    }
+
     get host() {
         return _.find(this._members, {id: this._hostMemberId});
     }
@@ -34,6 +38,10 @@ class Room {
 
     get coupleMember() {
         return _.find(this._members, {id: this._coupleMemberId});
+    }
+
+    resetCoupleMember() {
+        this._coupleMemberId = null;
     }
 
     get json() {

@@ -13,6 +13,10 @@ class DecisionsManager {
 
         return this._decisions.get(roomId);
     }
+
+    delete(roomId) {
+        this._decisions.delete(roomId);
+    }
 }
 
 module.exports = DecisionsManager;

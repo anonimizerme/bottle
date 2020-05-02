@@ -11,7 +11,9 @@ module.exports = {
     },
     plugins: [
         new Dotenv(),
-        new HtmlWebpackPlugin()
+        new HtmlWebpackPlugin({
+            template: 'playground.html'
+        })
     ],
     devServer: {
         contentBase: __dirname,

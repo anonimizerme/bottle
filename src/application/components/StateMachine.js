@@ -7,6 +7,43 @@ export const actions = {
     JOIN_ROOM: 'enter_room'
 };
 
+const stateInRoom = {
+    initial: 'pending',
+    states: {
+        pending: {
+            on: {
+                HOST: 'host',
+                VIEWER: 'viewer'
+            }
+        },
+        host: {
+            on: {
+                SPIN_RESULT: 'spinResult',
+            }
+        },
+        viewer: {
+            on: {
+                SPIN_RESULT: 'spinResult',
+            }
+        },
+        spinResult: {
+            on: {
+                WAIT_DECISION: 'waitDecision',
+            }
+        },
+        waitDecision: {
+            on: {
+                DECISION_READY: 'decisionReady'
+            },
+        },
+        decisionReady: {
+            on: {
+                '': 'pending'
+            }
+        }
+    }
+}
+
 const state = {
     id: 'application',
     initial: 'pending',
@@ -23,14 +60,9 @@ const state = {
             entry: [actions.REGISTERED]
         },
         inRoom: {
-            on: {
-                HOST: 'host',
-                VIEWER: 'viewer'
-            },
-            entry: [actions.JOIN_ROOM]
+            entry: [actions.JOIN_ROOM],
+            ...stateInRoom
         },
-        host: {},
-        viewer: {}
     }
 };
 
@@ -41,7 +73,10 @@ class StateMachine {
         this.actions = {};
         for (let i in actions) {
             const actionName = actions[i];
-            this.actions[actionName] = (context, event) => this._ee.emit(actionName, event);
+            this.actions[actionName] = (context, event) => {
+                console.log(`stateMachine: action: ${actionName} fired`);
+                this._ee.emit(actionName, event);
+            }
         }
 
         this._machine = interpret(Machine(state, {actions: this.actions})).onTransition(onTransition);
@@ -57,6 +92,10 @@ class StateMachine {
 
     get machine() {
         return this._machine;
+    }
+
+    matches(stateValue) {
+        return this._machine.state.matches(stateValue);
     }
 }
 

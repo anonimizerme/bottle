@@ -5,10 +5,11 @@ import Application from './components/Application';
 
 const clientId = localstorage.getClientId();
 const store = getStore(clientId);
-const stateMachine = new StateMachine((state) => console.log(`stateMachine: ${state.value}`));
+const stateMachine = new StateMachine((state) => console.log(`stateMachine: ${JSON.stringify(state.value)}`));
 let app = new Application(store, stateMachine);
 
 app.attachToDocument();
+window.app = app;
 app.render();
 //
 // setInterval(() => {

@@ -111,5 +111,16 @@ describe('Room', function() {
             room.changeHost();
             assert.equal(room.host, member1);
         })
+
+        it('Check isSpinned', function () {
+            const member1 = new Member(1);
+            const member2 = new Member(2);
+            room.addMember(member1);
+            room.addMember(member2);
+
+            assert.ok(!room.isSpinned);
+            assert.equal(room.getRandomMemberExcept(member1), member2);
+            assert.ok(room.isSpinned);
+        })
     });
 });

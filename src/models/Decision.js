@@ -9,7 +9,7 @@ class Decision {
     }
 
     get memberDecision() {
-        return this._memberDecision !== -1 ? this._hostDecision : undefined;
+        return this._memberDecision !== -1 ? this._memberDecision : undefined;
     }
 
     set hostDecision(ok) {

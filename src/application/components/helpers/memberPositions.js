@@ -9,6 +9,8 @@ export const memberImageSize = {
 };
 
 export const getPosition = (screen, memberIndex) => {
+    memberIndex = parseInt(memberIndex);
+
     let coordinates;
     switch (memberIndex) {
         case 0:
@@ -26,17 +28,15 @@ export const getPosition = (screen, memberIndex) => {
         case 6:
         case 7:
         case 8:
-            coordinates = {x: screen.width/2 - (7 - memberIndex) * (memberImageSize.width + memberImageWidth), y: screen.height - containerPadding};
+            coordinates = {x: screen.width/2 + (7 - memberIndex) * (memberImageSize.width + memberImageWidth), y: screen.height - containerPadding};
             break;
 
         case 9:
         case 10:
         case 11:
-            coordinates = {x: containerPadding, y: screen.height/2 - (10 - memberIndex) * (memberImageSize.width + memberImageSize.height)};
+            coordinates = {x: containerPadding, y: screen.height/2 + (10 - memberIndex) * (memberImageSize.width + memberImageSize.height)};
             break;
     }
-
-    console.log(memberIndex, coordinates);
 
     return new PIXI.Point(coordinates.x, coordinates.y);
 }

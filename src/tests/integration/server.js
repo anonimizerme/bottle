@@ -113,7 +113,7 @@ describe('Server', function () {
         }, 500);
 
         client2.on(clientEvents.SPIN_RESULT, (event) => {
-            assert.fail(`Client 2 can't spin the bottle and get spin result `);
+            assert.fail(`Client 2 can't spin the bottle and get spin result`);
         });
 
         client2.sendEvent(new SpinEvent());
@@ -140,6 +140,20 @@ describe('Server', function () {
             client.removeAllListeners();
             client2.removeAllListeners();
         })
+    });
+
+    it ('Spin the bottle second time', function (done) {
+        setTimeout(() => {
+            client.removeAllListeners();
+
+            done();
+        }, 500);
+
+        client.on(clientEvents.SPIN_RESULT, (event) => {
+            assert.fail(`Can't spin second time and get new spin result`);
+        });
+
+        client.sendEvent(new SpinEvent());
     });
 
     it ('Make decision first member', async function () {
