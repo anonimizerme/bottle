@@ -1,133 +1,150 @@
 import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 
-class DecisionDialog {
-    constructor(app) {
-        this._app = app;
+const BUTTON_TYPES = {
+    yes: {bg: 0xFFFFFF, text: '❤️'},
+    no: {bg: 0xCCCCCC, text: '❌️'},
+    wait: {bg: 0xffc1b2, text: '?️'},
+};
 
-        this._container = new PIXI.Container();
-        this._container.zIndex = 20;
-        this._container.position = new PIXI.Point(300, 300)
-        this._app.pixi.stage.addChild(this._container);
+class Button {
+    constructor(container, type) {
+        this._type = type;
+        this._object = this._make(type);
 
-        this.buttonYes = null;
-        this.buttonNo = null;
-        this.otherButton = null;
-
-        this._isShow = false;
-
-        this.handlerClickYes = null;
-        this.handlerClickNo = null;
+        container.addChild(this._object);
     }
 
-    init() {
-        this.render();
+    get object() {
+        return this._object;
     }
 
-    set isShow(show) {
-        this._isShow = show;
-
-        this.render();
+    set alpha(val) {
+        this._object.alpha = val;
     }
 
-    set state(state) {
-        if (!_.isUndefined(state.otherDecision)) {
-            this.otherButton = this.otherButton = this._makeButton(state.otherDecision ? 'yes' : 'no');
-            this.otherButton.position.x = 100;
-            this.otherButton.position.y = 25;
-
-            this._container.addChild(this.otherButton);
-        }
-
-        if (!_.isUndefined(state.decision)) {
-            if (state.decision) {
-                this.buttonYes.graphics.lineStyle(2, 0xFEEB77, 1);
-            } else {
-                this.buttonNo.graphics.lineStyle(2, 0xFEEB77, 1);
-            }
-        }
-
-        this.render();
+    set type(type) {
+        this._object.beginFill(BUTTON_TYPES.bg);
+        this._object.getChildByName('text').text = BUTTON_TYPES[type].text;
     }
 
-    onYes(callback) {
-        this.handlerClickYes = callback;
-    }
-
-    onNo(callback) {
-        this.handlerClickNo = callback;
-    }
-
-    render() {
-        this._container.visible = this._isShow;
-
-        this._makeYesButton();
-        this._makeNoButton();
-        this._makeOtherButton();
-
-        this._container.pivot.x = this._container.width / 2;
-        this._container.pivot.y = this._container.height / 2;
-    }
-
-    _makeYesButton() {
-        if (!_.isNull(this.buttonYes)) {
-            return;
-        }
-
-        this.buttonYes = this._makeButton('yes');
-        this.buttonYes.interactive = true;
-        this.buttonYes.cursor = 'pointer';
-        this.buttonYes.on('click', this.handlerClickYes);
-
-        this._container.addChild(this.buttonYes);
-    }
-
-    _makeNoButton() {
-        if (!_.isNull(this.buttonNo)) {
-            return;
-        }
-
-        this.buttonNo = this._makeButton('no');
-        this.buttonNo.position.y = 60;
-        this.buttonNo.interactive = true;
-        this.buttonNo.cursor = 'pointer';
-        this.buttonNo.on('click', this.handlerClickNo);
-
-        this._container.addChild(this.buttonNo);
-    }
-
-    _makeOtherButton() {
-        if (!_.isNull(this.otherButton)) {
-            return;
-        }
-
-        this.otherButton = this._makeButton('wait');
-        this.otherButton.position.x = 100;
-        this.otherButton.position.y = 25;
-
-        this._container.addChild(this.otherButton);
-    }
-
-    _makeButton(type) {
-        const types = {
-            yes: {bg: 0xFFFFFF, text: '❤️'},
-            no: {bg: 0xCCCCCC, text: '❌️'},
-            wait: {bg: 0xffc1b2, text: '?️'},
-        };
-
+    _make(type) {
         const button = new PIXI.Graphics();
 
-        button.beginFill(types[type].bg);
+        button.beginFill(BUTTON_TYPES[type].bg);
         button.drawRect(0, 0, 50, 50);
         button.endFill();
 
-        const text = new PIXI.Text(types[type].text);
+        const text = new PIXI.Text(BUTTON_TYPES[type].text);
+        text.name = 'text';
         text.anchor.set(0.5);
         text.x = 25;
         text.y = 25;
         button.addChild(text);
 
         return button;
+    }
+}
+
+class DecisionDialog {
+    constructor(app) {
+        this._app = app;
+
+        this._container = new PIXI.Container();
+        this._container.zIndex = 20;
+        this._container.position = new PIXI.Point(this._app.pixi.screen.width/2, this._app.pixi.screen.height/2);
+
+        this._objects = {
+            buttonYes: null,
+            buttonNo: null,
+            memberDecision: null
+        }
+
+        this._handlers = {
+            handlerClickYes: null,
+            handlerClickNo: null
+        }
+
+        this._makeObjects();
+        this._container.pivot.x = this._container.width / 2;
+        this._container.pivot.y = this._container.height / 2;
+
+        this.isShow = false;
+        this._app.pixi.stage.addChild(this._container);
+    }
+
+    _makeObjects() {
+        this._objects.buttonYes = new Button(this._container, 'yes')
+
+        this._objects.buttonNo = new Button(this._container, 'no')
+        this._objects.buttonNo.object.position.y = 60;
+
+        this._objects.memberDecision = new Button(this._container, 'wait')
+        this._objects.memberDecision.object.position.x = 100;
+        this._objects.memberDecision.object.position.y = 25;
+
+        this._objects.hostDecision = new Button(this._container, 'wait')
+        this._objects.hostDecision.object.position.y = 25;
+        this._objects.hostDecision.object.visible = false;
+    }
+
+    init() {
+
+    }
+
+    reset() {
+        this._objects.buttonYes.alpha = 1;
+        this._objects.buttonYes.object.interactive = true;
+        this._objects.buttonYes.object.cursor = 'pointer';
+
+        this._objects.buttonNo.alpha = 1;
+        this._objects.buttonNo.object.interactive = true;
+        this._objects.buttonNo.object.cursor = 'pointer';
+
+        this._objects.memberDecision.type = 'wait';
+    }
+
+    set isShow(show) {
+        this._container.visible = show;
+    }
+
+    set interactive(isInteractive) {
+        if (isInteractive) {
+            this._objects.buttonYes.object.visible = true;
+            this._objects.buttonNo.object.visible = true;
+            this._objects.hostDecision.object.visible = false;
+        } else {
+            this._objects.buttonYes.object.visible = false;
+            this._objects.buttonNo.object.visible = false;
+            this._objects.hostDecision.object.visible = true;
+        }
+    }
+
+    set myDecision(yes) {
+        this._objects.buttonYes.object.interactive = false;
+        this._objects.buttonNo.object.interactive = false;
+
+        if (yes) {
+            this._objects.buttonNo.alpha = 0.2;
+        } else {
+            this._objects.buttonYes.alpha = 0.2;
+        }
+    }
+
+    set hostDecision(yes) {
+        this._objects.hostDecision.type = yes ? 'yes' : 'no';
+    }
+
+    set memberDecision(yes) {
+        this._objects.memberDecision.type = yes ? 'yes' : 'no';
+    }
+
+    onYes(callback) {
+        this._objects.buttonYes.object.on('click', callback);
+    }
+
+    onNo(callback) {
+        this._objects.buttonNo.object.on('click', callback);
     }
 }
 

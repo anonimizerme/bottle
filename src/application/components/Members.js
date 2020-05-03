@@ -2,6 +2,47 @@ import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 import {getPosition, memberImageSize} from './helpers/memberPositions';
 
+class Member {
+    constructor(container, image, isMe) {
+        this._object = new PIXI.Container();
+
+        const sprite = new PIXI.Sprite.from(image);
+        sprite.name = 'sprite';
+        sprite.anchor.set(0.5);
+        sprite.width = memberImageSize.width;
+        sprite.height = memberImageSize.height;
+
+        this._object.addChild(sprite);
+
+        if (isMe) {
+            const text = new PIXI.Text('я', {fill: 0xFFFFFF, fontSize: 20});
+            text.anchor.set(0.5);
+            text.position.x = 0;
+            text.position.y = 35;
+
+            this._object.addChild(text);
+        }
+
+        container.addChild(this._object);
+    }
+
+    get object() {
+        return this._object;
+    }
+
+    reset() {
+       this._object.getChildByName('sprite').tint = 0xFFFFFF;
+    }
+
+    setHost() {
+        this._object.getChildByName('sprite').tint = 0x00FF2A;
+    }
+
+    setInCouple() {
+        this._object.getChildByName('sprite').tint = 0xFF00D2;
+    }
+}
+
 class Members {
     constructor(app) {
         this._app = app;
@@ -10,7 +51,7 @@ class Members {
         /** List of members */
         this._list = [];
 
-        /** List of members PIXI objects */
+        /** List of Member objects */
         this._objects = {};
 
         this.makeContainer();
@@ -35,6 +76,19 @@ class Members {
         }
     }
 
+    reset() {
+        console.log('!!!, reset');
+        _.forEach(this._objects, object => object.reset());
+    }
+
+    setHost(memberId) {
+        this._objects[memberId].setHost();
+    }
+
+    setCouple(memberId) {
+        this._objects[memberId].setInCouple();
+    }
+
     render() {
         // Remove deleted members
         // todo:
@@ -44,15 +98,9 @@ class Members {
             let item = this._list[i];
 
             if (!_.has(this._objects, item.id)) {
-                const sprite = new PIXI.Sprite.from(`assets/${i % 4}.svg`);
-                sprite.anchor.set(0.5);
-                sprite.width = memberImageSize.width;
-                sprite.height = memberImageSize.height;
-                sprite.position = getPosition(this._app.pixi.screen, i);
-
-                this._objects[item.id] = sprite;
-
-                this._container.addChild(this._objects[item.id]);
+                const member = new Member(this._container, `assets/${i % 4}.svg`, item.id == this._app.store.getState().client.clientId);
+                member.object.position = getPosition(this._app.pixi.screen, i);
+                this._objects[item.id] = member;
             }
         }
     }

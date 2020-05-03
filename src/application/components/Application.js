@@ -15,6 +15,7 @@ import {getAngle} from './helpers/bottleAngle';
 
 
 const isHost = (state) => _.get(state, 'room.host.id') === _.get(state, 'client.clientId');
+const isInCouple = (state) => isHost(state) || _.get(state, 'room.resultMemberId') === _.get(state, 'client.clientId');
 
 class Application {
     constructor(store, stateMachine) {
@@ -29,14 +30,16 @@ class Application {
         this.members = new Members(this);
         this.bottle = new Bottle(this);
 
-        // this.decisionDialog = new DecisionDialog(this);
-        // this.decisionDialog.onYes(() => {
-        //     this.client.sendEvent(new MakeDecisionEvent({ok: true}));
-        // });
-        // this.decisionDialog.onNo(() => {
-        //     this.client.sendEvent(new MakeDecisionEvent({ok: false}));
-        // });
-        // this.decisionDialog.init();
+        this.decisionDialog = new DecisionDialog(this);
+        this.decisionDialog.onYes(() => {
+            this.decisionDialog.myDecision = true;
+            this.client.sendEvent(new MakeDecisionEvent({ok: true}));
+        });
+        this.decisionDialog.onNo(() => {
+            this.decisionDialog.myDecision = false;
+            this.client.sendEvent(new MakeDecisionEvent({ok: false}));
+        });
+        this.decisionDialog.init();
 
         this.client.once(clientEvents.REGISTERED, (data) => {
             this.stateMachine.machine.send('REGISTERED');
@@ -58,12 +61,6 @@ class Application {
 
         this.client.on(clientEvents.SET_HOST, (event) => {
             this.store.dispatch(setHost(event));
-
-            if (event.member.id === this.store.getState().client.clientId) {
-                this.stateMachine.machine.send('HOST');
-            } else {
-                this.stateMachine.machine.send('VIEWER');
-            }
         });
 
         this.client.on(clientEvents.SPIN_RESULT, (event) => {
@@ -74,7 +71,6 @@ class Application {
             this.bottle.isShow = true;
             this.bottle.spin();
 
-            // setTimeout(() => {
             let memberIndex;
             let members = this.store.getState().room.members;
             for (let i in members) {
@@ -84,31 +80,35 @@ class Application {
                 }
             }
             this.bottle.setStop(memberIndex);
-            // })
         });
 
         this.client.on(clientEvents.DECISION, (event) => {
-            // todo: govnokod, perepisat
-            // this.decisionDialog.state = {
-            //     decision: isHost ? event.hostDecision : event.memberDecision,
-            //     otherDecision: isHost ? event.memberDecision: event.memberDecision,
-            // };
+            if (!isInCouple(this.store.getState())) {
+                if (!_.isUndefined(event.hostDecision)) {
+                    this.decisionDialog.hostDecision = event.hostDecision;
+                }
+
+                if (!_.isUndefined(event.memberDecision)) {
+                    this.decisionDialog.memberDecision = event.memberDecision;
+                }
+            } else {
+                let decision = isHost(this.store.getState()) ? event.memberDecision : event.hostDecision;
+                if (!_.isUndefined(decision)) {
+                    console.log('!!!!!!!', decision);
+                    this.decisionDialog.memberDecision = decision;
+                }
+            }
 
             if (event.isReady) {
-                this.stateMachine.machine.send('DECISION_READY');
+                if (isInCouple(this.store.getState())) {
 
-                // setTimeout(() => {
-                //     // this.decisionDialog.state = null;
-                //
-                //     if (event.isCouple) {
-                //         alert('У вас любовь :)')
-                //     } else {
-                //         alert('Увы, встреча не удалась')
-                //     }
-                // }, 1000);
+                }
 
-                // todo: move to state machine changing action
-                this.bottle.reset();
+                setTimeout(() => {
+                    this.stateMachine.machine.send('DECISION_READY');
+
+                    this.decisionDialog.isShow = false;
+                }, 3000);
             }
         });
 
@@ -120,14 +120,46 @@ class Application {
             console.log('we are in room!');
         });
 
+        // this.stateMachine.on(actions.PREPARE, () => {
+        //     // this.members.reset();
+        // });
+
+        this.stateMachine.on(actions.SET_HOST, () => {
+            this.members.setHost(this.store.getState().room.host.id);
+        });
+
+        this.stateMachine.on(actions.SET_VIEWER, () => {
+            this.members.setHost(this.store.getState().room.host.id);
+        });
+
+        this.stateMachine.on(actions.SET_IN_COUPLE, () => {
+            this.members.setCouple(this.store.getState().room.resultMemberId);
+        })
+
+        this.stateMachine.on(actions.WAIT_DECISION, () => {
+            const state = this.store.getState();
+
+            if (isInCouple(state)) {
+                this.decisionDialog.interactive = true;
+            } else {
+                this.decisionDialog.interactive = false;
+            }
+        });
+
+        this.stateMachine.on(actions.DECISION_READY, () => {
+            this.bottle.reset();
+            this.members.reset();
+
+            if (isHost()) {
+                this.stateMachine.machine.send('HOST');
+            } else {
+                this.stateMachine.machine.send('VIEWER');
+            }
+        })
+
         this._start();
 
-
         this.members.init();
-
-        window.test = () => this.client.sendEvent(new MakeDecisionEvent({ok: true}));
-        window.testGetAngle = (id) => getAngle(this.pixi.screen, id);
-
 
         this.bottle.onClick(() => {
             if (this.stateMachine.matches('inRoom.host')) {
@@ -135,7 +167,8 @@ class Application {
             }
         });
         this.bottle.onStop(() => {
-            // this.decisionDialog.isShow = true;
+            this.decisionDialog.reset();
+            this.decisionDialog.isShow = true;
 
             this.stateMachine.machine.send('WAIT_DECISION')
         });

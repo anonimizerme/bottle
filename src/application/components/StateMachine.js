@@ -4,7 +4,12 @@ import { Machine, interpret } from 'xstate';
 
 export const actions = {
     REGISTERED: 'registered',
-    JOIN_ROOM: 'enter_room'
+    JOIN_ROOM: 'enter_room',
+    SET_HOST: 'set_host',
+    SET_VIEWER: 'set_viewer',
+    SET_IN_COUPLE: 'set_in_couple',
+    WAIT_DECISION: 'wait_decision',
+    DECISION_READY: 'decision_ready'
 };
 
 const stateInRoom = {
@@ -19,27 +24,33 @@ const stateInRoom = {
         host: {
             on: {
                 SPIN_RESULT: 'spinResult',
-            }
+            },
+            entry: [actions.SET_HOST]
         },
         viewer: {
             on: {
                 SPIN_RESULT: 'spinResult',
-            }
+            },
+            entry: [actions.SET_VIEWER]
         },
         spinResult: {
             on: {
                 WAIT_DECISION: 'waitDecision',
-            }
+            },
+            entry: [actions.SET_IN_COUPLE]
         },
         waitDecision: {
             on: {
                 DECISION_READY: 'decisionReady'
             },
+            entry: [actions.WAIT_DECISION],
         },
         decisionReady: {
             on: {
-                '': 'pending'
-            }
+                HOST: 'host',
+                VIEWER: 'viewer'
+            },
+            entry: [actions.DECISION_READY],
         }
     }
 }
