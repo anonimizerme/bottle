@@ -68,9 +68,6 @@ class Application {
 
             this.stateMachine.machine.send('SPIN_RESULT');
 
-            this.bottle.show();
-            this.bottle.spin();
-
             let memberIndex;
             let members = this.store.getState().room.members;
             for (let i in members) {
@@ -80,6 +77,9 @@ class Application {
                 }
             }
             this.bottle.setStop(memberIndex);
+
+            this.bottle.show();
+            this.bottle.spin();
         });
 
         this.client.on(clientEvents.DECISION, (event) => {
@@ -163,6 +163,7 @@ class Application {
 
         this.bottle.onClick = () => {
             if (this.stateMachine.matches('inRoom.host')) {
+                this.bottle.prepare();
                 this.client.sendEvent(new SpinEvent());
             }
         };
@@ -216,7 +217,7 @@ class Application {
 
     render() {
         // this.pixi.ticker.add(delta => this.members.render(delta));
-        this.pixi.ticker.add(delta => this.bottle.animation(delta));
+        // this.pixi.ticker.add(delta => this.bottle.animation(delta));
     }
 }
 

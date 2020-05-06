@@ -21,6 +21,7 @@ graphics.pivot.x = 50;
 graphics.pivot.y = 50;
 graphics.position.x = 100;
 graphics.position.y = 100;
+graphics.interactive = true;
 pixi.stage.addChild(graphics);
 
 window.click = () => {
@@ -36,15 +37,31 @@ window.click = () => {
 
     graphics.angle = 0;
 
-    anime({
+    let target = 0;
+
+    let ani = anime({
         targets: graphics,
         angle: [
-            {value: -15, duration: 200, easing: 'easeOutCubic'},
-            {value: 360 * 2 + 180, duration: 4000, easing: 'easeOutQuint'}
+            {value: anime.random(-20, -10), duration: 200, easing: 'easeOutCubic'},
+            // {value: 360 * 2 + 190, duration: 4000, easing: 'easeOutQuint'}
         ],
         round: 1,
         easing: 'easeInBack'
     });
+
+    setTimeout(function() {
+        let ani = anime({
+            targets: graphics,
+            angle: [
+                // {value: anime.random(-20, -10), duration: 200, easing: 'easeOutCubic'},
+                {value: 360 * 2 + 190, duration: 4000, easing: 'easeOutQuint'}
+            ],
+            round: 1,
+            easing: 'easeInBack'
+        });
+    }, 400)
 }
+
+graphics.on('click', window.click);
 
 document.body.appendChild(pixi.view);
