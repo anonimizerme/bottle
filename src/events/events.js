@@ -134,6 +134,7 @@ class RoomEvent extends BaseEvent {
                 id: {type: 'string', required: true},
                 host: {type: 'object', required: true},
                 members: {type: 'array', required: true, items: {type: 'object'}, minItems: 1},
+                kisses: {type: 'object'}
             }
         }
     }
@@ -148,6 +149,10 @@ class RoomEvent extends BaseEvent {
 
     get members() {
         return this.prop('members');
+    }
+
+    get kisses() {
+        return this.prop('kisses');
     }
 }
 
@@ -245,6 +250,29 @@ class DecisionEvent extends BaseEvent {
     }
 }
 
+class SetKissesEvent extends BaseEvent {
+    get eventName() {
+        return clientEvents.SET_KISSES;
+    }
+
+    get isSentFromServer() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                kisses: {type: 'object', required: true}
+            }
+        }
+    }
+
+    get kisses() {
+        return this.prop('kisses');
+    }
+}
+
 class SetHostEvent extends BaseEvent {
     get eventName() {
         return clientEvents.SET_HOST;
@@ -276,4 +304,5 @@ module.exports.SpinEvent = SpinEvent;
 module.exports.SpinResultEvent = SpinResultEvent;
 module.exports.MakeDecisionEvent = MakeDecisionEvent;
 module.exports.DecisionEvent = DecisionEvent;
+module.exports.SetKissesEvent = SetKissesEvent;
 module.exports.SetHostEvent = SetHostEvent;

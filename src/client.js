@@ -67,6 +67,7 @@ class Client {
         this._socket.on(clientEvents.ROOM, this.handlerRoom.bind(this));
         this._socket.on(clientEvents.SPIN_RESULT, this.handleSpinResult.bind(this));
         this._socket.on(clientEvents.DECISION, this.handleDecision.bind(this));
+        this._socket.on(clientEvents.SET_KISSES, this.handleSetKisses.bind(this));
         this._socket.on(clientEvents.SET_HOST, this.handleSetHost.bind(this));
 
         while (this._que.length > 0) {
@@ -114,6 +115,14 @@ class Client {
         logger.log(`${this._socket.id} gets decision ${JSON.stringify(decisionEvent.object)}`);
 
         this._ee.emit(decisionEvent.eventName, decisionEvent);
+    }
+
+    handleSetKisses(data) {
+        const setKissesEvent = new events.SetKissesEvent(data);
+
+        logger.log(`${this._socket.id} gets set host ${JSON.stringify(setKissesEvent.object)}`);
+
+        this._ee.emit(setKissesEvent.eventName, setKissesEvent);
     }
 
     handleSetHost(data) {

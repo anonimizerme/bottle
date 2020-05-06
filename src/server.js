@@ -190,8 +190,18 @@ const onMakeDecision = (socket) => (data) => {
         isCouple: decision.isCouple
     }));
 
-    // Delete decision if it's ready and sent
     if (decision.isReady) {
+        // Update and send kisses
+        if (decision.isCouple) {
+            room.kissesStorage.add(room.host.id);
+            room.kissesStorage.add(room.coupleMember.id);
+
+            serverInstance.sendRoomEvent(room.id, new events.SetKissesEvent({
+                kisses: room.kissesStorage.json
+            }));
+        }
+
+        // Delete decision if it's ready and sent
         decisionsManager.delete(room.id);
         room.resetCoupleMember();
     }

@@ -188,6 +188,9 @@ describe('Server', function () {
                 client2.on(clientEvents.DECISION, event => res(event));
             }),
             new Promise(res => {
+                client2.on(clientEvents.SET_KISSES, event => res(event));
+            }),
+            new Promise(res => {
                 client2.on(clientEvents.SET_HOST, event => res(event));
             }),
         ];
@@ -200,7 +203,10 @@ describe('Server', function () {
             assert.equal(results[0].isReady, true);
             assert.equal(results[0].isCouple, true);
 
-            assert.equal(results[1].member.id, 'id 2');
+            assert.equal(results[1].kisses['id 1'], 1);
+            assert.equal(results[1].kisses['id 2'], 1);
+
+            assert.equal(results[2].member.id, 'id 2');
 
             client.removeAllListeners();
             client2.removeAllListeners();

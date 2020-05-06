@@ -1,12 +1,14 @@
 const assert = require('assert');
 const _ = require('lodash');
 const uuid = require('uuid');
+const KissesStorage = require('./../components/KissesStorage');
 const Member = require('./Member');
 
 class Room {
     constructor() {
         this._id = uuid.v4();
         this._members = [];
+        this._kissesStorage = new KissesStorage();
         this._hostMemberId = null;
         this._coupleMemberId = null;
     }
@@ -40,6 +42,10 @@ class Room {
         return _.find(this._members, {id: this._coupleMemberId});
     }
 
+    get kissesStorage() {
+        return this._kissesStorage;
+    }
+
     resetCoupleMember() {
         this._coupleMemberId = null;
     }
@@ -48,7 +54,8 @@ class Room {
         return {
             id: this.id,
             members: this.members.map(member => member.json),
-            host: !_.isUndefined(this.host) ? this.host.json : null
+            host: !_.isUndefined(this.host) ? this.host.json : null,
+            kisses: this.kissesStorage.json
         }
     }
 
