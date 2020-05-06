@@ -9,6 +9,7 @@
     "client_dev": "webpack-dev-server"
   },
   "dependencies": {
+    "animejs": "^3.2.0",
     "dotenv": "^8.2.0",
     "jsonschema": "^1.2.5",
     "lodash": "^4.17.15",

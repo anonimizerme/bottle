@@ -4,15 +4,25 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     mode: 'development',
-    entry: './src/application/index.js',
+    entry: {
+        playground: './src/application/index.js',
+        dev: './src/application/dev.js'
+    },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'client.bundle.js'
+        filename: '[name]_client.bundle.js'
     },
     plugins: [
         new Dotenv(),
         new HtmlWebpackPlugin({
-            template: 'playground.html'
+            chunks: ['playground'],
+            template: 'playground.html',
+            filename: 'index.html'
+        }),
+        new HtmlWebpackPlugin({
+            chunks: ['dev'],
+            template: 'dev.html',
+            filename: 'dev.html'
         })
     ],
     devServer: {

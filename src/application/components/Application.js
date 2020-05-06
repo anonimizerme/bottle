@@ -68,7 +68,7 @@ class Application {
 
             this.stateMachine.machine.send('SPIN_RESULT');
 
-            this.bottle.isShow = true;
+            this.bottle.show();
             this.bottle.spin();
 
             let memberIndex;
@@ -161,18 +161,17 @@ class Application {
 
         this.members.init();
 
-        this.bottle.onClick(() => {
+        this.bottle.onClick = () => {
             if (this.stateMachine.matches('inRoom.host')) {
                 this.client.sendEvent(new SpinEvent());
             }
-        });
-        this.bottle.onStop(() => {
+        };
+        this.bottle.onStop = () => {
             this.decisionDialog.reset();
             this.decisionDialog.isShow = true;
 
             this.stateMachine.machine.send('WAIT_DECISION')
-        });
-        this.bottle.init();
+        };
 
         this.store.subscribe(() => {
             const state = this.store.getState();
@@ -181,7 +180,7 @@ class Application {
             this.members.list = _.get(state, 'room.members', []);
 
             // Provide properties to bottle component
-            this.bottle.isShow = isHost(state);
+            isHost(state) ? this.bottle.show() : this.bottle.hide();
         });
     }
 

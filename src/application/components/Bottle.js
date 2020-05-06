@@ -1,43 +1,60 @@
 import _ from 'lodash';
 import * as PIXI from 'pixi.js';
+import Element from './core/Element';
 import {getAngle} from './helpers/bottleAngle';
 
-class Bottle {
+class Bottle extends Element {
     constructor(app) {
-        this._app = app;
-        // todo: implement container;
-        this._container = null;
+        super(app.pixi);
 
-        this.object = null;
+        // By default bottle is hidden
+        this.hide();
 
-        this._isShow = false;
+        this.zIndex = 10;
 
-        this._stage = null;
+        // Define and init objects
+        this.bottle = null;
+        this._initObjects();
 
-        this.handlerClick = null;
-
+        // todo: refactoring
         this.loops = Math.floor(Math.random() * 3) + 3;
         this.maxSpeed = 0;
         this.speed = 0;
         this.distancetoStop = Math.max(180+Math.random()*90);
     }
 
-    init() {
-        this.render();
+    _initObjects() {
+        if (this.bottle) {
+            return;
+        }
+
+        this.bottle = PIXI.Sprite.from('assets/bottle.png');
+        this.bottle.anchor.set(0.5);
+        this.bottle.scale.set(0.3);
+        this.bottle.x = this.screen.width / 2;
+        this.bottle.y = this.screen.height / 2;
+        this.bottle.interactive = true;
+        this.bottle.cursor = 'pointer';
+
+        this.bottle.on('click', this.handlerClick.bind(this));
+
+        this.addChild(this.bottle);
     }
 
-    set isShow(show) {
-        this._isShow = show;
-
-        this.render();
+    set onClick(callback) {
+        this.ee.on('CLICK', callback);
     }
 
-    onClick(callback) {
-        this.handlerClick = callback;
+    set onStop(callback) {
+        this.ee.on('STOP', callback);
     }
 
-    onStop(callback) {
-        this.handlerStop = callback;
+    handlerClick() {
+        this.ee.emit('CLICK');
+    }
+
+    handlerStop() {
+        this.ee.emit('STOP');
     }
 
     spin() {
@@ -45,37 +62,11 @@ class Bottle {
     }
 
     setStop(memberIndex) {
-        this._targetAngle = getAngle(this._app.pixi.screen, memberIndex);
+        this._targetAngle = getAngle(this.screen, memberIndex);
     }
 
     reset() {
-        this.object.angle = 0;
-    }
-
-    render() {
-        if (_.isNull(this.object)) {
-            const pixi = this._app.pixi;
-
-            this._container = new PIXI.Container();
-            this._container.zIndex = 10;
-
-            this.object = PIXI.Sprite.from('assets/bottle.png');
-            this.object.anchor.set(0.5);
-            this.object.scale.set(0.3);
-            this.object.x = pixi.screen.width / 2;
-            this.object.y = pixi.screen.height / 2;
-
-            this.object.interactive = true;
-            this.object.cursor = 'pointer';
-
-            this.object.on('click', this.handlerClick);
-
-            this._container.addChild(this.object)
-
-            pixi.stage.addChild(this._container);
-        }
-
-        this.object.visible = this._isShow;
+        this.bottle.angle = 0;
     }
 
     animation(delta) {
@@ -83,28 +74,28 @@ class Bottle {
 
         if (this._stage === 'spin') {
             // increasing speed
-            if (this.object.angle <= 180) {
+            if (this.bottle.angle <= 180) {
                 this.speed += 0.15;
             } else if (targetAngle) {
-                if (this.object.angle >= targetAngle) {
+                if (this.bottle.angle >= targetAngle) {
                     this.maxSpeed = 0;
                     this.speed = 0;
-                    this.object.angle = this._targetAngle;
+                    this.bottle.angle = this._targetAngle;
 
                     this._stage = null;
                     this.handlerStop();
                     return;
-                } else if (targetAngle - this.object.angle < this.distancetoStop) {
+                } else if (targetAngle - this.bottle.angle < this.distancetoStop) {
                     this.maxSpeed = Math.max(this.maxSpeed, this.speed);
 
-                    const percent = (this.object.angle - (targetAngle - this.distancetoStop)) / (this.distancetoStop / 100);
+                    const percent = (this.bottle.angle - (targetAngle - this.distancetoStop)) / (this.distancetoStop / 100);
                     let percentInvert = 100 - percent;
                     this.speed = (this.maxSpeed / 100) * Math.max(percentInvert, 8);
                 }
             }
 
 
-            this.object.angle += delta * this.speed;
+            this.bottle.angle += delta * this.speed;
         }
     }
 }
