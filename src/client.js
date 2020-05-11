@@ -65,10 +65,10 @@ class Client {
 
         this._socket.on(clientEvents.REGISTERED, this.handlerRegistered.bind(this));
         this._socket.on(clientEvents.ROOM, this.handlerRoom.bind(this));
-        this._socket.on(clientEvents.SPIN_RESULT, this.handleSpinResult.bind(this));
-        this._socket.on(clientEvents.DECISION, this.handleDecision.bind(this));
-        this._socket.on(clientEvents.SET_KISSES, this.handleSetKisses.bind(this));
-        this._socket.on(clientEvents.SET_HOST, this.handleSetHost.bind(this));
+        this._socket.on(clientEvents.SPIN_RESULT, this.handlerSpinResult.bind(this));
+        this._socket.on(clientEvents.DECISION, this.handlerDecision.bind(this));
+        this._socket.on(clientEvents.SET_KISSES, this.handlerSetKisses.bind(this));
+        this._socket.on(clientEvents.SET_HOST, this.handlerSetHost.bind(this));
 
         while (this._que.length > 0) {
             this.sendEvent(this._que.pop());
@@ -101,7 +101,7 @@ class Client {
         this._ee.emit(roomEvent.eventName, roomEvent);
     }
 
-    handleSpinResult(data) {
+    handlerSpinResult(data) {
         const spinResultEvent = new events.SpinResultEvent(data);
 
         logger.log(`${this._socket.id} gets spin result ${JSON.stringify(spinResultEvent.object)}`);
@@ -109,7 +109,7 @@ class Client {
         this._ee.emit(spinResultEvent.eventName, spinResultEvent);
     }
 
-    handleDecision(data) {
+    handlerDecision(data) {
         const decisionEvent = new events.DecisionEvent(data);
 
         logger.log(`${this._socket.id} gets decision ${JSON.stringify(decisionEvent.object)}`);
@@ -117,7 +117,7 @@ class Client {
         this._ee.emit(decisionEvent.eventName, decisionEvent);
     }
 
-    handleSetKisses(data) {
+    handlerSetKisses(data) {
         const setKissesEvent = new events.SetKissesEvent(data);
 
         logger.log(`${this._socket.id} gets set host ${JSON.stringify(setKissesEvent.object)}`);
@@ -125,7 +125,7 @@ class Client {
         this._ee.emit(setKissesEvent.eventName, setKissesEvent);
     }
 
-    handleSetHost(data) {
+    handlerSetHost(data) {
         const setHostEvent = new events.SetHostEvent(data);
 
         logger.log(`${this._socket.id} gets set host ${JSON.stringify(setHostEvent.object)}`);

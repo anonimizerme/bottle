@@ -4,6 +4,7 @@ import events from '../../../events/events';
 const SET_ROOM = 'set_room';
 const SET_SPIN_RESULT = 'set_spin_result';
 const SET_HOST = 'set_host';
+const SET_KISSES = 'set_kisses';
 
 export const setRoom = (roomEvent) => {
     assert.ok(roomEvent instanceof events.RoomEvent);
@@ -32,6 +33,15 @@ export const setHost = (setHostEvent) => {
     }
 }
 
+export const setKisses = (setKissesEvent) => {
+    assert.ok(setKissesEvent instanceof events.SetKissesEvent);
+
+    return {
+        type: SET_KISSES,
+        event: setKissesEvent
+    }
+}
+
 const defaultState = {};
 
 function room(state = defaultState, {type, event}) {
@@ -41,7 +51,8 @@ function room(state = defaultState, {type, event}) {
                 ...state,
                 id: event.id,
                 members: event.members,
-                host: event.host
+                host: event.host,
+                kisses: event.kisses
             };
         case SET_SPIN_RESULT:
             return {
@@ -53,6 +64,11 @@ function room(state = defaultState, {type, event}) {
                 ...state,
                 host: event.member
             };
+        case SET_KISSES:
+            return {
+                ...state,
+                kisses: event.kisses
+            }
         default:
             return state
     }

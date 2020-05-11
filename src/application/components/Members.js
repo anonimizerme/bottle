@@ -23,11 +23,23 @@ class Member {
             this._object.addChild(text);
         }
 
+        const kisses = new PIXI.Text('❤️ = 0', {fill: 0xFFFFFF, fontSize: 20});
+        kisses.name = 'kisses';
+        kisses.anchor.set(0.5);
+        kisses.position.x = 0;
+        kisses.position.y = 50;
+
+        this._object.addChild(kisses);
+
         container.addChild(this._object);
     }
 
     get object() {
         return this._object;
+    }
+
+    set kisses(kisses) {
+        this._object.getChildByName('kisses').text = '❤️ = '+kisses;
     }
 
     reset() {
@@ -51,6 +63,9 @@ class Members {
         /** List of members */
         this._list = [];
 
+        /** List of kisses */
+        this._kisses = {};
+
         /** List of Member objects */
         this._objects = {};
 
@@ -72,6 +87,13 @@ class Members {
     set list(members) {
         if (this._list !== members) {
             this._list = members;
+            this.render();
+        }
+    }
+
+    set kisses(kisses) {
+        if (this._kisses !== kisses) {
+            this._kisses = kisses;
             this.render();
         }
     }
@@ -102,6 +124,11 @@ class Members {
                 member.object.position = getPosition(this._app.pixi.screen, i);
                 this._objects[item.id] = member;
             }
+        }
+
+        // set Kisses
+        for (let i in this._kisses) {
+            this._objects[i].kisses = this._kisses[i];
         }
     }
 }

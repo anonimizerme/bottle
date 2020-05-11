@@ -10,7 +10,7 @@ import Bottle, {ON_CLICK, ON_STOP} from './Bottle';
 import DecisionDialog from './DecisionDialog';
 import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent} from '../../events/events';
 import clientEvents from '../../events/client';
-import {setRoom, setSpinResult, setHost} from '../store/reducers/room';
+import {setRoom, setSpinResult, setHost, setKisses} from '../store/reducers/room';
 import {getAngle} from './helpers/bottleAngle';
 
 
@@ -61,6 +61,10 @@ class Application {
 
         this.client.on(clientEvents.SET_HOST, (event) => {
             this.store.dispatch(setHost(event));
+        });
+
+        this.client.on(clientEvents.SET_KISSES, (event) => {
+            this.store.dispatch(setKisses(event));
         });
 
         this.client.on(clientEvents.SPIN_RESULT, (event) => {
@@ -161,13 +165,13 @@ class Application {
 
         this.members.init();
 
-        this.bottle.on(ON_CLICK, () => {
+        this.bottle.ee.on(ON_CLICK, () => {
             if (this.stateMachine.matches('inRoom.host')) {
                 this.bottle.prepare();
                 this.client.sendEvent(new SpinEvent());
             }
         });
-        this.bottle.on(ON_STOP, () => {
+        this.bottle.ee.on(ON_STOP, () => {
             this.decisionDialog.reset();
             this.decisionDialog.isShow = true;
 
@@ -179,6 +183,8 @@ class Application {
 
             // Provide member to member component
             this.members.list = _.get(state, 'room.members', []);
+
+            this.members.kisses = _.get(state, 'room.kisses', {});
 
             // Provide properties to bottle component
             isHost(state) ? this.bottle.show() : this.bottle.hide();
