@@ -6,7 +6,7 @@ import config from '../config';
 import {actions} from './StateMachine';
 import Client from './../../client';
 import Members from './Members';
-import Bottle from './Bottle';
+import Bottle, {ON_CLICK, ON_STOP} from './Bottle';
 import DecisionDialog from './DecisionDialog';
 import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent} from '../../events/events';
 import clientEvents from '../../events/client';
@@ -161,18 +161,18 @@ class Application {
 
         this.members.init();
 
-        this.bottle.onClick = () => {
+        this.bottle.on(ON_CLICK, () => {
             if (this.stateMachine.matches('inRoom.host')) {
                 this.bottle.prepare();
                 this.client.sendEvent(new SpinEvent());
             }
-        };
-        this.bottle.onStop = () => {
+        });
+        this.bottle.on(ON_STOP, () => {
             this.decisionDialog.reset();
             this.decisionDialog.isShow = true;
 
             this.stateMachine.machine.send('WAIT_DECISION')
-        };
+        });
 
         this.store.subscribe(() => {
             const state = this.store.getState();
