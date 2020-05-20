@@ -3,13 +3,17 @@ import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 
 class Element {
-    constructor(pixi) {
+    constructor(pixi, container = null) {
         this._pixi = pixi;
 
         this._ee = new EventEmitter();
-        this._container = null;
+        this._container = container;
 
         pixi.stage.addChild(this.container);
+    }
+
+    get pixi() {
+        return this._pixi;
     }
 
     get screen() {
@@ -22,7 +26,7 @@ class Element {
 
     get container() {
         if (_.isNull(this._container)) {
-            this._container = this.makeContainer();
+            this._container = new PIXI.Container();
         }
 
         return this._container;
@@ -32,12 +36,12 @@ class Element {
         this.container.zIndex = zIndex;
     }
 
-    makeContainer() {
-        return new PIXI.Container();
-    }
-
     addChild(object) {
         this.container.addChild(object);
+    }
+
+    removeChild(object) {
+        this.container.removeChild(object);
     }
 
     getChild(name) {

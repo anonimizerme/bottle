@@ -11,6 +11,8 @@ let app = new Application(store, stateMachine);
 app.attachToDocument();
 window.app = app;
 app.render();
+
+export default app;
 //
 // setInterval(() => {
 //     store.dispatch({

@@ -1,14 +1,13 @@
 import _ from 'lodash';
 
+import app from '../../index';
 import Element from './core/Element';
 import Member from './Member';
 import {getPosition} from '../helpers/memberPositions';
 
 class MemberList extends Element {
-    constructor(app) {
-        super(app.pixi);
-
-        this._app = app;
+    constructor(pixi) {
+        super(pixi);
 
         /** List of members */
         this.list = [];
@@ -18,6 +17,9 @@ class MemberList extends Element {
 
         /** List of Member objects */
         this.objects = {};
+
+        // Other props
+        this._initialKissesSet = true;
     }
 
     set list(members) {
@@ -30,8 +32,8 @@ class MemberList extends Element {
                 let item = this._list[i];
 
                 if (!_.has(this._objects, item.id)) {
-                    const member = new Member(this._app, {image: `assets/${i % 4}.svg`, isMe: item.id == this._app.store.getState().client.clientId});
-                    member.container.position = getPosition(this._app.pixi.screen, i);
+                    const member = new Member(this.pixi, {image: `assets/${i % 4}.svg`, isMe: item.id == app.store.getState().client.clientId});
+                    member.container.position = getPosition(this.screen, i);
                     this.objects[item.id] = member;
                 }
             }
@@ -43,22 +45,24 @@ class MemberList extends Element {
             this._kisses = kisses;
 
             for (let i in this._kisses) {
-                this.objects[i].kissesValue = this._kisses[i];
+                this.objects[i].kisses.update(this._kisses[i], !this._initialKissesSet);
             }
         }
+
+        this._initialKissesSet = false;
     }
 
     reset() {
         console.log('!!!, reset');
-        _.forEach(this._objects, object => object.reset());
+        _.forEach(this.objects, object => object.reset());
     }
 
     setHost(memberId) {
-        this._objects[memberId].setHost();
+        this.objects[memberId].setHost();
     }
 
     setCouple(memberId) {
-        this._objects[memberId].setInCouple();
+        this.objects[memberId].setInCouple();
     }
 }
 

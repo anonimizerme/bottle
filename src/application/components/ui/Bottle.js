@@ -21,8 +21,8 @@ export const ON_CLICK = 'CLICK';
 export const ON_STOP = 'STOP';
 
 class Bottle extends Element {
-    constructor(app) {
-        super(app.pixi);
+    constructor(pixi) {
+        super(pixi);
 
         // By default bottle is hidden
         this.hide();

@@ -2,11 +2,12 @@ import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 
 import Element from './core/Element';
+import Kisses from './Kisses';
 import {memberImageSize} from '../helpers/memberPositions';
 
 class Member extends Element {
-    constructor(app, {image, isMe}) {
-        super(app.pixi);
+    constructor(pixi, {image, isMe}) {
+        super(pixi);
 
         // Define props
         this.props = {
@@ -43,18 +44,12 @@ class Member extends Element {
         }
 
         if (_.isNull(this.kisses)) {
-            this.kisses = new PIXI.Text('❤️ = 0', {fill: 0xFFFFFF, fontSize: 20});
-            this.kisses.name = 'kisses';
-            this.kisses.anchor.set(0.5);
-            this.kisses.position.x = 0;
-            this.kisses.position.y = 50;
+            this.kisses = new Kisses(this.pixi, {amount: 0});
+            this.kisses.container.position.x = 0;
+            this.kisses.container.position.y = 0;
 
-            this.addChild(this.kisses);
+            this.addChild(this.kisses.container);
         }
-    }
-
-    set kissesValue(value) {
-        this.kisses.text = '❤️ = '+value;
     }
 
     reset() {

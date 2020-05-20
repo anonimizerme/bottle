@@ -11,8 +11,6 @@ import DecisionDialog from './DecisionDialog';
 import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent} from '../../events/events';
 import clientEvents from '../../events/client';
 import {setRoom, setSpinResult, setHost, setKisses} from '../store/reducers/room';
-import {getAngle} from './helpers/bottleAngle';
-
 
 const isHost = (state) => _.get(state, 'room.host.id') === _.get(state, 'client.clientId');
 const isInCouple = (state) => isHost(state) || _.get(state, 'room.resultMemberId') === _.get(state, 'client.clientId');
@@ -27,8 +25,8 @@ class Application {
         this.client = new Client();
         this.client.init(`${config.server.protocol}://${config.server.host}:${config.server.port}`);
 
-        this.members = new MemberList(this);
-        this.bottle = new Bottle(this);
+        this.members = new MemberList(this.pixi);
+        this.bottle = new Bottle(this.pixi);
 
         this.decisionDialog = new DecisionDialog(this);
         this.decisionDialog.onYes(() => {
