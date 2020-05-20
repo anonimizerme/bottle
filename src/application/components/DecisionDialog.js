@@ -101,6 +101,7 @@ class DecisionDialog {
         this._objects.buttonNo.object.interactive = true;
         this._objects.buttonNo.object.cursor = 'pointer';
 
+        this._objects.hostDecision.type = 'wait';
         this._objects.memberDecision.type = 'wait';
     }
 

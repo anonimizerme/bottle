@@ -6,11 +6,13 @@
   "scripts": {
     "start": "node index.js",
     "test": "mocha src/tests/**/*.js",
-    "client_dev": "webpack-dev-server"
+    "client_dev": "webpack-dev-server",
+    "bots": "node src/bot.js"
   },
   "dependencies": {
     "animejs": "^3.2.0",
     "dotenv": "^8.2.0",
+    "faker": "^4.1.0",
     "jsonschema": "^1.2.5",
     "lodash": "^4.17.15",
     "pixi.js": "^5.2.1",

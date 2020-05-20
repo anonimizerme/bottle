@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import * as PIXI from 'pixi.js';
+import faker from 'faker';
 window.PIXI = PIXI;
 
 import config from '../config';
@@ -8,7 +9,7 @@ import Client from './../../client';
 import MemberList from './ui/MemberList';
 import Bottle, {ON_CLICK, ON_STOP} from './ui/Bottle';
 import DecisionDialog from './DecisionDialog';
-import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent} from '../../events/events';
+import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent, ChatMessageEvent} from '../../events/events';
 import clientEvents from '../../events/client';
 import {setRoom, setSpinResult, setHost, setKisses} from '../store/reducers/room';
 
@@ -38,6 +39,17 @@ class Application {
             this.client.sendEvent(new MakeDecisionEvent({ok: false}));
         });
         this.decisionDialog.init();
+
+        this.client.on(clientEvents.CHAT_NEW_MESSAGE, (data) => {
+            const chat = document.getElementById('chat');
+            chat.value += `${data.member.name}: ${data.message}\n\n`;
+            chat.scrollTop = chat.scrollHeight;
+        });
+
+        document.getElementById('send').addEventListener('click', () => {
+            this.client.sendEvent(new ChatMessageEvent({message: document.getElementById('text').value}));
+            document.getElementById('text').value = '';
+        });
 
         this.client.once(clientEvents.REGISTERED, (data) => {
             this.stateMachine.machine.send('REGISTERED');
@@ -209,12 +221,12 @@ class Application {
         let stateClient = this.store.getState().client;
         this.client.sendEvent(new RegisterEvent({
             id: stateClient.clientId,
-            name: stateClient.clientId,
+            name: faker.name.firstName(),
         }));
     }
 
     attachToDocument() {
-        document.body.appendChild(this.pixi.view);
+        document.getElementById('game').appendChild(this.pixi.view);
     }
 
     render() {
