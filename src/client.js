@@ -69,9 +69,10 @@ class Client {
         this._socket.on(clientEvents.DECISION, this.handlerDecision.bind(this));
         this._socket.on(clientEvents.SET_KISSES, this.handlerSetKisses.bind(this));
         this._socket.on(clientEvents.SET_HOST, this.handlerSetHost.bind(this));
+        this._socket.on(clientEvents.CHAT_NEW_MESSAGE, this.handlerChatNewMessage.bind(this));
 
         while (this._que.length > 0) {
-            this.sendEvent(this._que.pop());
+            this.sendEvent(this._que.shift());
         }
     }
 
@@ -131,6 +132,14 @@ class Client {
         logger.log(`${this._socket.id} gets set host ${JSON.stringify(setHostEvent.object)}`);
 
         this._ee.emit(setHostEvent.eventName, setHostEvent);
+    }
+
+    handlerChatNewMessage(data) {
+        const chatNewMessageEvent = new events.ChatNewMessageEvent(data);
+
+        logger.log(`${this._socket.id} gets chat new message ${JSON.stringify(chatNewMessageEvent.object)}`);
+
+        this._ee.emit(chatNewMessageEvent.eventName, chatNewMessageEvent);
     }
 
     get connected() {

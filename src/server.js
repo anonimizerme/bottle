@@ -25,6 +25,7 @@ const onConnect = (socket) => {
     socket.on(serverEvents.JOIN, onJoin(socket));
     socket.on(serverEvents.SPIN, onSpin(socket));
     socket.on(serverEvents.MAKE_DECISION, onMakeDecision(socket));
+    socket.on(serverEvents.CHAT_MESSAGE, onChatMessage(socket));
 };
 
 const onDisconnect = (socket) => (reason) => {
@@ -214,6 +215,38 @@ const onMakeDecision = (socket) => (data) => {
             member: room.host.json
         }));
     }
+};
+
+const onChatMessage = (socket) => (data) => {
+    logger.log(`onChatMessage with ${JSON.stringify(data)}`);
+
+    // Get memberId for socketId
+    const memberId = _.findKey(membersToSocket, socketId => socketId === socket.id);
+    if (_.isUndefined(memberId)) {
+        // todo: think about errors in websocket
+        return;
+    }
+
+    const chatMessageEvent = new events.ChatMessageEvent(data);
+
+    // Try to find member
+    const member = membersManager.getMember(memberId);
+
+    if (_.isUndefined(member)) {
+        // todo: think about errors in websocket
+        return;
+    }
+
+    let room = roomsManager.getRoomWithMember(member);
+    if (_.isUndefined(room)) {
+        // todo: think about errors in websocket
+        return;
+    }
+
+    serverInstance.sendRoomEvent(room.id, new events.ChatNewMessageEvent({
+        member: member.json,
+        message: chatMessageEvent.message
+    }));
 };
 
 class Server {

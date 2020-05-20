@@ -4,5 +4,6 @@ module.exports = {
     SPIN_RESULT: '$spinResult',
     DECISION: '$decision',
     SET_KISSES: '$setKisses',
-    SET_HOST: '$setHost'
+    SET_HOST: '$setHost',
+    CHAT_NEW_MESSAGE: '$chatNewMessage'
 };

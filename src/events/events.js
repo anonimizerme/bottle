@@ -296,6 +296,57 @@ class SetHostEvent extends BaseEvent {
     }
 }
 
+class ChatMessageEvent extends BaseEvent {
+    get eventName() {
+        return serverEvents.CHAT_MESSAGE;
+    }
+
+    get isSentFromClient() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                message: {type: 'string', required: true}
+            }
+        }
+    }
+
+    get message() {
+        return this.prop('message');
+    }
+}
+
+class ChatNewMessageEvent extends BaseEvent {
+    get eventName() {
+        return clientEvents.CHAT_NEW_MESSAGE;
+    }
+
+    get isSentFromServer() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                member: {type: 'object', required: true},
+                message: {type: 'string', required: true},
+            }
+        }
+    }
+
+    get member() {
+        return this.prop('member');
+    }
+
+    get message() {
+        return this.prop('message');
+    }
+}
+
 module.exports.RegisterEvent = RegisterEvent;
 module.exports.RegisteredEvent = RegisteredEvent;
 module.exports.JoinEvent = JoinEvent;
@@ -306,3 +357,5 @@ module.exports.MakeDecisionEvent = MakeDecisionEvent;
 module.exports.DecisionEvent = DecisionEvent;
 module.exports.SetKissesEvent = SetKissesEvent;
 module.exports.SetHostEvent = SetHostEvent;
+module.exports.ChatMessageEvent = ChatMessageEvent;
+module.exports.ChatNewMessageEvent = ChatNewMessageEvent;
