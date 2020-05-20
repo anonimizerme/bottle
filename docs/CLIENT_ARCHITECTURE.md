@@ -33,7 +33,7 @@ Game process:
 
 Game components:
 ----------------
-1. Members
+1. MemberList
 2. Bottle
 3. Popup decision
     

@@ -5,8 +5,8 @@ window.PIXI = PIXI;
 import config from '../config';
 import {actions} from './StateMachine';
 import Client from './../../client';
-import Members from './Members';
-import Bottle, {ON_CLICK, ON_STOP} from './Bottle';
+import MemberList from './ui/MemberList';
+import Bottle, {ON_CLICK, ON_STOP} from './ui/Bottle';
 import DecisionDialog from './DecisionDialog';
 import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent} from '../../events/events';
 import clientEvents from '../../events/client';
@@ -27,7 +27,7 @@ class Application {
         this.client = new Client();
         this.client.init(`${config.server.protocol}://${config.server.host}:${config.server.port}`);
 
-        this.members = new Members(this);
+        this.members = new MemberList(this);
         this.bottle = new Bottle(this);
 
         this.decisionDialog = new DecisionDialog(this);
@@ -162,8 +162,6 @@ class Application {
         })
 
         this._start();
-
-        this.members.init();
 
         this.bottle.ee.on(ON_CLICK, () => {
             if (this.stateMachine.matches('inRoom.host')) {

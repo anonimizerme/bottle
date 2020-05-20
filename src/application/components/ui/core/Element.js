@@ -1,4 +1,5 @@
-const EventEmitter = require('events');
+import EventEmitter from 'events';
+import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 
 class Element {
@@ -6,9 +7,9 @@ class Element {
         this._pixi = pixi;
 
         this._ee = new EventEmitter();
-        this._container = new PIXI.Container();
+        this._container = null;
 
-        pixi.stage.addChild(this._container);
+        pixi.stage.addChild(this.container);
     }
 
     get screen() {
@@ -20,27 +21,35 @@ class Element {
     }
 
     get container() {
+        if (_.isNull(this._container)) {
+            this._container = this.makeContainer();
+        }
+
         return this._container;
     }
 
     set zIndex(zIndex) {
-        this._container.zIndex = zIndex;
+        this.container.zIndex = zIndex;
+    }
+
+    makeContainer() {
+        return new PIXI.Container();
     }
 
     addChild(object) {
-        this._container.addChild(object);
+        this.container.addChild(object);
     }
 
     getChild(name) {
-        return this._container.getChildByName(name);
+        return this.container.getChildByName(name);
     }
 
     hide() {
-        this._container.visible = false;
+        this.container.visible = false;
     }
 
     show() {
-        this._container.visible = true;
+        this.container.visible = true;
     }
 
     render() {

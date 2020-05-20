@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 import anime from 'animejs';
+
 import Element from './core/Element';
-import {getAngle} from './helpers/bottleAngle';
+import {getAngle} from '../helpers/bottleAngle';
 
 const ANIM_ANGLE_PREPARE = () => ({
     value: anime.random(-20, -10),
