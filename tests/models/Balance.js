@@ -1,20 +1,22 @@
 const assert = require('assert');
-const should = require('should');
+const chai = require('chai');
 
-const Balance = require('../../models/Balance');
+const Balance = require('../../common/models/Balance');
+
+const expect = chai.expect;
 
 describe('Balance', function() {
     describe('Check constructor', function () {
         it('Invalid construction', function () {
-            (() => {
+            expect(() => {
                 new Balance();
-            }).should.throw();
+            }).to.throw();
         });
 
         it('Correct construction', function () {
-            (() => {
+            expect(() => {
                 new Balance(1, 1);
-            }).should.not.throw();
+            }).to.not.throw();
         });
     });
 
@@ -27,18 +29,18 @@ describe('Balance', function() {
 
         it('Add hearts', function () {
             balance.addHearts(10);
-            assert.equal(balance.hearts, 20);
+            expect(balance.hearts).to.equal(20);
         });
 
         it('Remove hearts', function () {
             balance.removeHearts(10);
-            assert.equal(balance.hearts, 0);
+            expect(balance.hearts).to.equal(0);
         });
 
         it('Invalid remove hearts', function () {
-            (() => {
+            expect(() => {
                 balance.removeHearts(20);
-            }).should.throw();
+            }).to.throw();
         });
     })
 });

@@ -9,9 +9,17 @@ const DecisionsManager = require('./components/DecisionsManager');
 const logger = require('./components/Logger')('server');
 
 let io;
+
+/** @type {Server} */
 let serverInstance;
+
+/** @type {MembersManager} */
 let membersManager;
+
+/** @type {RoomsManager} */
 let roomsManager;
+
+/** @type {DecisionsManager} */
 let decisionsManager;
 
 let membersToSocket = {};
@@ -37,18 +45,26 @@ const onDisconnect = (socket) => (reason) => {
  * @param socket
  * @returns {function(...[*]=)}
  */
-const onRegister = (socket) => (data) => {
+const onRegister = (socket) => async (data) => {
     logger.log(`onRegister with ${JSON.stringify(data)}`);
 
     const regEvent = new events.RegisterEvent(data);
     let member;
-    if (!membersManager.hasMember(regEvent.id)) {
-        member = new Member(regEvent.id, regEvent.name);
-        membersManager.addMember(member, member.id);
-        membersToSocket[member.id] = socket.id;
-    } else {
-        membersToSocket[regEvent.id] = socket.id;
+
+    try {
+        member = await membersManager.getMember(regEvent.id);
+    } catch (e) {
+        if (e instanceof Member.NotFoundError) {
+            // todo: saving correct image
+            member = Member.create(uuid.v4(), regEvent.name, 'test.png');
+            await membersManager.addMember(member);
+        } else {
+            // todo: catch db errors
+            return;
+        }
     }
+
+    membersToSocket[member.id] = socket.id;
 
     serverInstance.sendEvent(socket, new events.RegisteredEvent({
         success: true
