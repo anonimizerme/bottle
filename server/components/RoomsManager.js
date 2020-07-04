@@ -50,7 +50,7 @@ class RoomsManager {
             room.hostMemberId = member.id;
         }
 
-        return room.$query().update();
+        await room.$query().update();
     }
 
     /**
@@ -105,6 +105,23 @@ class RoomsManager {
         room.hostMemberId = member.id;
 
         return room.$query().update();
+    }
+
+    async changeHost(room) {
+        assert.ok(room.memberIds.length > 1);
+
+        const localMemberId = room.memberIds.indexOf(room.hostMemberId);
+        let newLocalMemberHostId;
+
+        if (_.isUndefined(room.memberIds[localMemberId+1])) {
+            newLocalMemberHostId = 0;
+        } else {
+            newLocalMemberHostId = localMemberId + 1;
+        }
+
+        room.hostMemberId = room.memberIds[newLocalMemberHostId];
+
+        room.$query().update();
     }
 
     /**

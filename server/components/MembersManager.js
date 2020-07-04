@@ -25,8 +25,9 @@ class MembersManager {
      * Get Member by Id
      * @param id
      * @returns {Objection.QueryBuilder<this, this>}
+     * @throws {Member.NotFoundError}
      */
-    async getMember(id) {
+    getMember(id) {
         return Member.query().findById(id).throwIfNotFound();
     }
 

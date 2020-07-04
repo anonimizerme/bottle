@@ -1,12 +1,13 @@
 const SocketIO = require('socket.io');
 const _ = require('lodash');
-const events = require('./events/events');
-const serverEvents = require('./events/server');
-const Member = require('./models/Member');
+
+const events = require('../common/events/events');
+const serverEvents = require('../common/events/server');
+const Member = require('../common/models/Member');
 const MembersManager = require('./components/MembersManager');
 const RoomsManager = require('./components/RoomsManager');
 const DecisionsManager = require('./components/DecisionsManager');
-const logger = require('./components/Logger')('server');
+const logger = require('../common/components/Logger')('server');
 
 let io;
 
@@ -56,9 +57,10 @@ const onRegister = (socket) => async (data) => {
     } catch (e) {
         if (e instanceof Member.NotFoundError) {
             // todo: saving correct image
-            member = Member.create(uuid.v4(), regEvent.name, 'test.png');
+            member = Member.create(regEvent.id, regEvent.name, 'test.png');
             await membersManager.addMember(member);
         } else {
+            logger.log(`onRegister error: ${e.message}`);
             // todo: catch db errors
             return;
         }
@@ -71,7 +73,7 @@ const onRegister = (socket) => async (data) => {
     }));
 };
 
-const onJoin = (socket) => (data) => {
+const onJoin = (socket) => async (data) => {
     logger.log(`onJoin with ${JSON.stringify(data)}`);
 
     // Get memberId for socketId
@@ -82,26 +84,31 @@ const onJoin = (socket) => (data) => {
     }
 
     // Try to find member
-    const member = membersManager.getMember(memberId);
-
-    if (_.isUndefined(member)) {
-        // todo: think about errors in websocket
-        return;
+    let member;
+    try {
+        member = await membersManager.getMember(memberId);
+    } catch (e) {
+        if (e instanceof Member.NotFoundError) {
+            // todo: think about errors in websocket
+            return;
+        } else {
+            throw e;
+        }
     }
 
-    let room = roomsManager.getRoomWithMember(member);
+    let room = await roomsManager.getRoomWithMember(member);
     if (_.isUndefined(room)) {
-        room = roomsManager.getAvailableRoom();
-        room.addMember(member);
+        room = await roomsManager.getAvailableRoom();
+        await roomsManager.addMember(room, member);
     }
 
     // add socket to room
     serverInstance.joinRoom(socket, room.id);
 
-    serverInstance.sendRoomEvent(room.id, new events.RoomEvent(room.json));
+    serverInstance.sendRoomEvent(room.id, new events.RoomEvent(room.toJSON()));
 };
 
-const onSpin = (socket) => (data) => {
+const onSpin = (socket) => async (data) => {
     logger.log(`onSpin with ${JSON.stringify(data)}`);
 
     // Get memberId for socketId
@@ -112,47 +119,50 @@ const onSpin = (socket) => (data) => {
     }
 
     // Try to find member
-    const member = membersManager.getMember(memberId);
-    if (_.isUndefined(member)) {
-        // todo: think about errors in websocket
-        return;
+    let member;
+    try {
+        member = await membersManager.getMember(memberId);
+    } catch (e) {
+        if (e instanceof Member.NotFoundError) {
+            // todo: think about errors in websocket
+            return;
+        } else {
+            throw e;
+        }
     }
 
     // Try to find room
-    const room = roomsManager.getRoomWithMember(member);
+    const room = await roomsManager.getRoomWithMember(member);
     if (_.isUndefined(room)) {
         // todo: think about errors in websocket
         return;
     }
 
     // Check member is host
-    if (room.host !== member) {
+    if (room.hostMemberId !== member.id) {
         // todo: think about errors in websocket
         return;
     }
 
     // Check not already spin
-    if (room.isSpinned) {
+    if (room.isSpun) {
         // todo: think about errors in websocket
         return;
-    } else {
-        // Set room is spinned
-        room.isSpinned = true;
     }
 
     // Get random member from room
-    let rndMember;
+    let rndMemberId;
     try {
-        rndMember = room.getRandomMemberExcept(member);
+        rndMemberId = await roomsManager.getRandomMemberIdExcept(room, member);
     } catch (e) {
         // todo: think about errors in websocket
         return;
     }
 
-    serverInstance.sendRoomEvent(room.id, new events.SpinResultEvent({member: rndMember.json}));
+    serverInstance.sendRoomEvent(room.id, new events.SpinResultEvent({memberId: rndMemberId}));
 };
 
-const onMakeDecision = (socket) => (data) => {
+const onMakeDecision = (socket) => async (data) => {
     logger.log(`onMakeDecision with ${JSON.stringify(data)}`);
 
     // Get memberId for socketId
@@ -163,14 +173,20 @@ const onMakeDecision = (socket) => (data) => {
     }
 
     // Try to find member
-    const member = membersManager.getMember(memberId);
-    if (_.isUndefined(member)) {
-        // todo: think about errors in websocket
-        return;
+    let member;
+    try {
+        member = await membersManager.getMember(memberId);
+    } catch (e) {
+        if (e instanceof Member.NotFoundError) {
+            // todo: think about errors in websocket
+            return;
+        } else {
+            throw e;
+        }
     }
 
     // Try to find room
-    const room = roomsManager.getRoomWithMember(member);
+    const room = await roomsManager.getRoomWithMember(member);
     if (_.isUndefined(room)) {
         // todo: think about errors in websocket
         return;
@@ -181,14 +197,14 @@ const onMakeDecision = (socket) => (data) => {
     const decision = decisionsManager.room(room.id);
 
     // Check from who and set decision
-    if (room.host === member) {
+    if (room.hostMemberId === member.id) {
         if (_.isUndefined(decision.hostDecision)) {
             decision.hostDecision = makeDecisionEvent.ok;
         } else {
             // todo: think about errors in websocket
             return;
         }
-    } else if (room.coupleMember === member) {
+    } else if (room.coupleMemberId === member.id) {
         if (_.isUndefined(decision.memberDecision)) {
             decision.memberDecision = makeDecisionEvent.ok;
         } else {
@@ -210,25 +226,28 @@ const onMakeDecision = (socket) => (data) => {
     if (decision.isReady) {
         // Update and send kisses
         if (decision.isCouple) {
-            room.kissesStorage.add(room.host.id);
-            room.kissesStorage.add(room.coupleMember.id);
+            // todo: update kisses storage
+            // room.kissesStorage.add(room.host.id);
+            // room.kissesStorage.add(room.coupleMember.id);
 
-            serverInstance.sendRoomEvent(room.id, new events.SetKissesEvent({
-                kisses: room.kissesStorage.json
-            }));
+            // serverInstance.sendRoomEvent(room.id, new events.SetKissesEvent({
+            //     kisses: room.kissesStorage.json
+            // }));
         }
 
         // Delete decision if it's ready and sent
         decisionsManager.delete(room.id);
-        room.resetCoupleMember();
+        await roomsManager.resetCoupleMember(room);
     }
 
     // Change host
     if (decision.isReady) {
-        room.changeHost();
+        console.log('AAAAAAA', room.hostMemberId);
+        await roomsManager.changeHost(room);
+        console.log('BBBBBB', room.hostMemberId);
 
         serverInstance.sendRoomEvent(room.id, new events.SetHostEvent({
-            member: room.host.json
+            memberId: room.hostMemberId
         }));
     }
 };

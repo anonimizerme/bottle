@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const serverEvents = require('../events/server');
-const clientEvents = require('../events/client');
+const serverEvents = require('./server');
+const clientEvents = require('./client');
 const eventsSchemaValidator = require('../components/eventsSchemaValidator');
 
 class BaseEvent {
@@ -24,7 +24,12 @@ class BaseEvent {
 
     set object(object) {
         if (!_.isUndefined(this.schema)) {
-            eventsSchemaValidator.validate(object, this.schema, {throwError: true});
+            try {
+                // todo: temporary try catch. Move it to place where event is created
+                eventsSchemaValidator.validate(object, this.schema, {throwError: true});
+            } catch (e) {
+                console.log('!!!!!!!', this.constructor.name, object, e);
+            }
         }
 
         for (let prop in object) {
@@ -132,8 +137,8 @@ class RoomEvent extends BaseEvent {
             type: 'object',
             properties: {
                 id: {type: 'string', required: true},
-                host: {type: 'object', required: true},
-                members: {type: 'array', required: true, items: {type: 'object'}, minItems: 1},
+                hostMemberId: {type: 'string', required: true},
+                memberIds: {type: 'array', required: true, items: {type: 'string'}, minItems: 1},
                 kisses: {type: 'object'}
             }
         }
@@ -143,12 +148,12 @@ class RoomEvent extends BaseEvent {
         return this.prop('id');
     }
 
-    get host() {
-        return this.prop('host');
+    get hostMemberId() {
+        return this.prop('hostMemberId');
     }
 
-    get members() {
-        return this.prop('members');
+    get memberIds() {
+        return this.prop('memberIds');
     }
 
     get kisses() {
@@ -179,13 +184,13 @@ class SpinResultEvent extends BaseEvent {
         return {
             type: 'object',
             properties: {
-                member: {type: 'object', required: true},
+                memberId: {type: 'string', required: true},
             }
         }
     }
 
-    get member() {
-        return this.prop('member');
+    get memberId() {
+        return this.prop('memberId');
     }
 }
 
@@ -286,13 +291,13 @@ class SetHostEvent extends BaseEvent {
         return {
             type: 'object',
             properties: {
-                member: {type: 'object', required: true},
+                memberId: {type: 'string', required: true},
             }
         }
     }
 
-    get member() {
-        return this.prop('member');
+    get memberId() {
+        return this.prop('memberId');
     }
 }
 

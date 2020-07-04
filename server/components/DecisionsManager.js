@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const Decision = require('../models/Decision');
+const Decision = require('../../common/models/Decision');
 
 class DecisionsManager {
     constructor() {
