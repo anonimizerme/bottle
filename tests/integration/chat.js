@@ -1,12 +1,10 @@
 const assert = require('assert');
 const _ = require('lodash');
 
-const Server = require('../../server').Server;
-const Client = require('../../client');
-const clientEvents = require('../../events/client');
-const RegisterEvent = require('../../events/events').RegisterEvent;
-const ChatMessageEvent = require('../../events/events').ChatMessageEvent;
-const JoinEvent = require('../../events/events').JoinEvent;
+const Server = require('../../server/server').Server;
+const Client = require('../../common/client');
+const clientEvents = require('../../common/events/client');
+const {RegisterEvent, ChatMessageEvent, JoinEvent} = require('../../common/events/events');
 
 const PORT = 3030;
 const URL = `http://localhost:${PORT}`;

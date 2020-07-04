@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const KissesStorage = require('../../components/KissesStorage');
+const KissesStorage = require('../../server/components/KissesStorage');
 
 describe('KissesStorage', function() {
 

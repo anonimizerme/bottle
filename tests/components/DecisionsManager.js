@@ -1,7 +1,7 @@
 const assert = require('assert');
 
-const DecisionsManager = require('../../components/DecisionsManager');
-const Room = require('../../models/Room');
+const DecisionsManager = require('../../server/components/DecisionsManager');
+const Room = require('../../common/models/Room');
 
 describe('DecisionsManager', function() {
 
