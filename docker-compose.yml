@@ -9,3 +9,5 @@ services:
     environment:
       POSTGRES_PASSWORD: bottle
       POSTGRES_DB: bottle
+    volumes:
+      - ./postgresql/data:/var/lib/postgresql/data

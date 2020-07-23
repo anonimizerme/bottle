@@ -39,9 +39,8 @@ class Bottle extends Element {
             return;
         }
 
-        this.bottle = PIXI.Sprite.from('assets/bottle.png');
+        this.bottle = PIXI.Sprite.from('assets/bottle_01.png');
         this.bottle.anchor.set(0.5);
-        this.bottle.scale.set(0.3);
         this.bottle.x = this.screen.width / 2;
         this.bottle.y = this.screen.height / 2;
         this.bottle.interactive = true;

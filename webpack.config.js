@@ -5,8 +5,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
     mode: 'development',
     entry: {
-        playground: './src/application/index.js',
-        dev: './src/application/dev.js'
+        playground: './client/application/index.js',
+        dev: './client/application/dev.js'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -16,12 +16,12 @@ module.exports = {
         new Dotenv(),
         new HtmlWebpackPlugin({
             chunks: ['playground'],
-            template: 'playground.html',
+            template: './client/playground.html',
             filename: 'index.html'
         }),
         new HtmlWebpackPlugin({
             chunks: ['dev'],
-            template: 'dev.html',
+            template: './client/dev.html',
             filename: 'dev.html'
         })
     ],

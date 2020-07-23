@@ -26,6 +26,8 @@ describe('Server', function () {
         server = (new Server()).init(PORT);
         client = (new Client()).init(URL);
 
+        // Clear DB before run test
+        // todo: use test db for tests
         await Promise.all([
             Room.query().delete(),
             Member.query().delete()

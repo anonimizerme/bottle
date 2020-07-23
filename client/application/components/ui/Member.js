@@ -17,6 +17,8 @@ class Member extends Element {
 
         // Define and init objects
         this.image = null;
+        this.imageMask = null;
+        this.border = null;
         this.text = null;
         this.kisses = null;
 
@@ -27,18 +29,40 @@ class Member extends Element {
         if (_.isNull(this.image)) {
             this.image = new PIXI.Sprite.from(this.props.image);
             this.image.name = 'sprite';
-            this.image.anchor.set(0.5);
             this.image.width = memberImageSize.width;
             this.image.height = memberImageSize.height;
 
             this.addChild(this.image);
         }
 
+        if (_.isNull(this.imageMask)) {
+            // Mask to make rounded
+            this.imageMask = new PIXI.Graphics();
+            this.imageMask.lineStyle(0);
+            this.imageMask.beginFill(0x000000);
+            this.imageMask.drawRoundedRect(0, 0, memberImageSize.width, memberImageSize.height, 40);
+            this.imageMask.endFill();
+            this.addChild(this.imageMask);
+            this.image.mask = this.imageMask;
+        }
+
+        if (_.isNull(this.border) && Math.random() > 0.3) {
+            this.border = new PIXI.Sprite.from(`assets/borders/b${Math.round(Math.random()*2)+1}.png`);
+            this.border.name = 'border';
+            this.border.width = memberImageSize.width + 30 * memberImageSize.width / 100;
+            this.border.height = memberImageSize.height + 30 * memberImageSize.height / 100;
+            this.border.position.set(
+                (memberImageSize.width - this.border.width) / 2,
+                (memberImageSize.height - this.border.height) / 2
+            );
+
+            this.addChild(this.border);
+        }
+
         if (_.isNull(this.text) && this.props.isMe) {
-            this.text = new PIXI.Text('я', {fill: 0xFFFFFF, fontSize: 20});
-            this.text.anchor.set(0.5);
-            this.text.position.x = 0;
-            this.text.position.y = 35;
+            this.text = new PIXI.Text('я', {fill: 0xFFFFFF, fontSize: 30});
+            this.text.position.x = memberImageSize.width / 2;
+            this.text.position.y = memberImageSize.height + 10;
 
             this.addChild(this.text);
         }

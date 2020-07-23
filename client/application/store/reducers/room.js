@@ -1,5 +1,5 @@
 import assert from 'assert';
-import events from '../../../events/events';
+import events from '../../../../common/events/events';
 
 const SET_ROOM = 'set_room';
 const SET_SPIN_RESULT = 'set_spin_result';
@@ -50,19 +50,19 @@ function room(state = defaultState, {type, event}) {
             return {
                 ...state,
                 id: event.id,
-                members: event.members,
-                host: event.host,
+                memberIds: event.memberIds,
+                hostMemberId: event.hostMemberId,
                 kisses: event.kisses
             };
         case SET_SPIN_RESULT:
             return {
                 ...state,
-                resultMemberId: event.member.id
+                resultMemberId: event.memberId
             };
         case SET_HOST:
             return {
                 ...state,
-                host: event.member
+                hostId: event.memberId
             };
         case SET_KISSES:
             return {

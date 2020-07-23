@@ -1,8 +1,10 @@
 import _ from 'lodash';
+import faker from 'faker';
 
 import app from '../../index';
 import Element from './core/Element';
 import Member from './Member';
+import {ROOM_LIMIT} from '../../../../common/models/Room';
 import {getPosition} from '../helpers/memberPositions';
 
 class MemberList extends Element {
@@ -22,19 +24,19 @@ class MemberList extends Element {
         this._initialKissesSet = true;
     }
 
-    set list(members) {
-        if (this._list !== members) {
-            this._list = members;
+    set list(memberIds) {
+        if (this._list !== memberIds) {
+            this._list = memberIds;
 
             //todo: remove leaved members https://trello.com/c/nXTmtPfg
 
             for (let i=0; i<this._list.length; i++) {
-                let item = this._list[i];
+                let memberId = this._list[i];
 
-                if (!_.has(this._objects, item.id)) {
-                    const member = new Member(this.pixi, {image: `assets/${i % 4}.svg`, isMe: item.id == app.store.getState().client.clientId});
-                    member.container.position = getPosition(this.screen, i);
-                    this.objects[item.id] = member;
+                if (!_.has(this._objects, memberId)) {
+                    const member = new Member(this.pixi, {image: faker.image.avatar(), isMe: memberId == app.store.getState().client.clientId});
+                    member.container.position = getPosition(this.screen, i, ROOM_LIMIT);
+                    this.objects[memberId] = member;
                 }
             }
         }

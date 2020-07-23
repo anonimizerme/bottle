@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "start": "node sever/index.js",
+    "start": "node server/index.js",
     "test": "mocha tests/**/*.js",
     "client_dev": "webpack-dev-server",
     "bots": "node src/bot.js"

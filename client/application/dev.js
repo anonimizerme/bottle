@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import anime from 'animejs';
+import faker from 'faker';
 
 const pixi = new PIXI.Application({
     width: 600,
@@ -11,57 +11,22 @@ const pixi = new PIXI.Application({
 
 pixi.stage.sortableChildren = true;
 
-pixi.renderer.backgroundColor = 0x061639;
+const sprite = PIXI.Sprite.from('https://s3.amazonaws.com/uifaces/faces/twitter/namankreative/128.jpg');
+sprite.width = 300;
+sprite.height = 300;
 
 const graphics = new PIXI.Graphics();
-graphics.beginFill(0xDE3249);
-graphics.drawRect(0, 0, 100, 100);
+graphics.lineStyle(2, 0x000000);
+graphics.beginFill(0x000000);
+graphics.drawRoundedRect(10, 10, 300, 300, 40);
 graphics.endFill();
-graphics.pivot.x = 50;
-graphics.pivot.y = 50;
-graphics.position.x = 100;
-graphics.position.y = 100;
-graphics.interactive = true;
-pixi.stage.addChild(graphics);
 
-window.click = () => {
-    // карточка наклоняется
-    // anime({
-    //     targets: graphics,
-    //     angle: -10,
-    //     round: 1,
-    //     duration: 200,
-    //     direction: 'alternate',
-    //     easing: 'linear',
-    // });
+sprite.mask = graphics;
 
-    graphics.angle = 0;
+sprite.position.x = 10;
+sprite.position.y = 10;
 
-    let target = 0;
+pixi.stage.addChild(sprite);
 
-    let ani = anime({
-        targets: graphics,
-        angle: [
-            {value: anime.random(-20, -10), duration: 200, easing: 'easeOutCubic'},
-            // {value: 360 * 2 + 190, duration: 4000, easing: 'easeOutQuint'}
-        ],
-        round: 1,
-        easing: 'easeInBack'
-    });
-
-    setTimeout(function() {
-        let ani = anime({
-            targets: graphics,
-            angle: [
-                // {value: anime.random(-20, -10), duration: 200, easing: 'easeOutCubic'},
-                {value: 360 * 2 + 190, duration: 4000, easing: 'easeOutQuint'}
-            ],
-            round: 1,
-            easing: 'easeInBack'
-        });
-    }, 400)
-}
-
-graphics.on('click', window.click);
 
 document.body.appendChild(pixi.view);

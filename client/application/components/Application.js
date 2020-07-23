@@ -5,15 +5,15 @@ window.PIXI = PIXI;
 
 import config from '../config';
 import {actions} from './StateMachine';
-import Client from './../../client';
+import Client from '../../../common/client';
 import MemberList from './ui/MemberList';
 import Bottle, {ON_CLICK, ON_STOP} from './ui/Bottle';
 import DecisionDialog from './DecisionDialog';
-import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent, ChatMessageEvent} from '../../events/events';
-import clientEvents from '../../events/client';
+import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent, ChatMessageEvent} from '../../../common/events/events';
+import clientEvents from '../../../common/events/client';
 import {setRoom, setSpinResult, setHost, setKisses} from '../store/reducers/room';
 
-const isHost = (state) => _.get(state, 'room.host.id') === _.get(state, 'client.clientId');
+const isHost = (state) => _.get(state, 'room.hostMemberId') === _.get(state, 'client.clientId');
 const isInCouple = (state) => isHost(state) || _.get(state, 'room.resultMemberId') === _.get(state, 'client.clientId');
 
 class Application {
@@ -60,7 +60,7 @@ class Application {
 
             this.stateMachine.machine.send('JOIN_ROOM');
 
-            if (event.members.length > 1) {
+            if (event.memberIds.length > 1) {
                 if (isHost(this.store.getState())) {
                     this.stateMachine.machine.send('HOST');
                 } else {
@@ -83,9 +83,9 @@ class Application {
             this.stateMachine.machine.send('SPIN_RESULT');
 
             let memberIndex;
-            let members = this.store.getState().room.members;
-            for (let i in members) {
-                if (members[i].id == event.member.id) {
+            let memberIds = this.store.getState().room.memberIds;
+            for (let i in memberIds) {
+                if (memberIds[i] == event.memberId) {
                     memberIndex = i;
                     break;
                 }
@@ -139,11 +139,11 @@ class Application {
         // });
 
         this.stateMachine.on(actions.SET_HOST, () => {
-            this.members.setHost(this.store.getState().room.host.id);
+            this.members.setHost(this.store.getState().room.hostMemberId);
         });
 
         this.stateMachine.on(actions.SET_VIEWER, () => {
-            this.members.setHost(this.store.getState().room.host.id);
+            this.members.setHost(this.store.getState().room.hostMemberId);
         });
 
         this.stateMachine.on(actions.SET_IN_COUPLE, () => {
@@ -190,7 +190,7 @@ class Application {
             const state = this.store.getState();
 
             // Provide member to member component
-            this.members.list = _.get(state, 'room.members', []);
+            this.members.list = _.get(state, 'room.memberIds', []);
 
             this.members.kisses = _.get(state, 'room.kisses', {});
 
@@ -201,12 +201,26 @@ class Application {
 
     _initPixi() {
         const pixi = new PIXI.Application({
-            width: 600,
-            height: 600,
+            width: 1796,
+            height: 1725,
             antialias: true,    // default: false
             transparent: false, // default: false
-            resolution: 1       // default: 1
+            resolution: 0.5       // default: 1
         });
+
+        const bg = new PIXI.Sprite.from('assets/bg/bg_01.jpg');
+        bg.anchor.x = 0;
+        bg.anchor.y = 0;
+        bg.position.x = 0;
+        bg.position.y = 0;
+        pixi.stage.addChild(bg);
+
+        const table = new PIXI.Sprite.from('assets/table.png');
+        table.anchor.set(0.5)
+        table.scale.set(0.7)
+        table.position.x = pixi.screen.width/2;
+        table.position.y = pixi.screen.height/2;
+        pixi.stage.addChild(table);
 
         pixi.stage.sortableChildren = true;
 
