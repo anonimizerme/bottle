@@ -29,4 +29,13 @@ sprite.position.y = 10;
 pixi.stage.addChild(sprite);
 
 
+const sprite1 = PIXI.Sprite.from(faker.image.avatar());
+sprite1.position.set(300, 300);
+sprite1.width = 300;
+sprite1.height = 300;
+
+pixi.stage.addChild(sprite1);
+
+
+
 document.body.appendChild(pixi.view);

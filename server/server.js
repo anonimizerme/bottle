@@ -102,10 +102,16 @@ const onJoin = (socket) => async (data) => {
         await roomsManager.addMember(room, member);
     }
 
+    // get members for this room
+    const members = (await membersManager.getMembers(room.memberIds)).map(member => member.toJSON());
+
     // add socket to room
     serverInstance.joinRoom(socket, room.id);
 
-    serverInstance.sendRoomEvent(room.id, new events.RoomEvent(room.toJSON()));
+    serverInstance.sendRoomEvent(room.id, new events.RoomEvent({
+        ...room.toJSON(),
+        members
+    }));
 };
 
 const onSpin = (socket) => async (data) => {

@@ -139,6 +139,7 @@ class RoomEvent extends BaseEvent {
                 id: {type: 'string', required: true},
                 hostMemberId: {type: 'string', required: true},
                 memberIds: {type: 'array', required: true, items: {type: 'string'}, minItems: 1},
+                members: {type: 'array', required: true, items: {type: 'object'}, minItems: 1},
                 kisses: {type: 'object'}
             }
         }

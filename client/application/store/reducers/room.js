@@ -52,6 +52,7 @@ function room(state = defaultState, {type, event}) {
                 id: event.id,
                 memberIds: event.memberIds,
                 hostMemberId: event.hostMemberId,
+                members: event.members,
                 kisses: event.kisses
             };
         case SET_SPIN_RESULT:

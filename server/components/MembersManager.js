@@ -32,6 +32,16 @@ class MembersManager {
     }
 
     /**
+     * Get Members by list of Id
+     * @param {string[]} ids
+     * @returns {Objection.QueryBuilder<this, this>}
+     * @throws {Member.NotFoundError}
+     */
+    getMembers(ids) {
+        return Member.query().findByIds(ids);
+    }
+
+    /**
      * todo: remove this method usage
      * @deprecated
      */
