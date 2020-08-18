@@ -28,6 +28,7 @@ module.exports = {
     devServer: {
         contentBase: __dirname,
         compress: true,
+        disableHostCheck: true,
         port: 9000
     }
 };

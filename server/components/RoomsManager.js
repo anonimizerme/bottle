@@ -1,5 +1,6 @@
 const assert = require('assert');
 const _ = require('lodash');
+const {raw} = require('objection');
 const Room = require('../../common/models/Room');
 const Member = require('../../common/models/Member');
 
@@ -36,21 +37,24 @@ class RoomsManager {
 
     /**
      * Add member to room
+     * @param {Room} room
      * @param {Member} member
+     * @returns {Promise<Room>}
      */
     async addMember(room, member) {
         assert.ok(room instanceof Room);
         assert.ok(member instanceof Member);
         assert.ok(room.memberIds.length < Room.ROOM_LIMIT);
 
-        room.memberIds.push(member.id);
+        let patch = {
+            memberIds: raw(`member_ids || '["${member.id}"]'::jsonb`)
+        };
 
-        // Set host if added member is first
-        if (room.memberIds.length === 1) {
-            room.hostMemberId = member.id;
+        if (room.memberIds.length === 0) {
+            patch.hostMemberId = member.id;
         }
 
-        await room.$query().update();
+        return room.$query().patchAndFetch(patch);
     }
 
     /**
@@ -121,7 +125,24 @@ class RoomsManager {
 
         room.hostMemberId = room.memberIds[newLocalMemberHostId];
 
-        room.$query().update();
+        await room.$query().update();
+    }
+
+    /**
+     * Add kisses for hostMember and coupleMember
+     * @param {Room} room
+     * @returns {Objection.QueryBuilder<this, number>}
+     */
+    async addKissesForCouple(room) {
+        ['hostMemberId', 'coupleMemberId'].forEach(memberIdKey => {
+            _.set(
+                room.memberKisses,
+                room[memberIdKey],
+                _.get(room.memberKisses, room[memberIdKey], 0) + 1
+            );
+        });
+
+        await room.$query().update();
     }
 
     /**

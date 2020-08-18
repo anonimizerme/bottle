@@ -8,6 +8,9 @@ import {actions} from './StateMachine';
 import Client from '../../../common/client';
 import MemberList from './ui/MemberList';
 import Bottle, {ON_CLICK, ON_STOP} from './ui/Bottle';
+import Heart from './ui/Heart';
+import Menu from './ui/Menu';
+import Mail from './ui/Mail';
 import DecisionDialog from './DecisionDialog';
 import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent, ChatMessageEvent} from '../../../common/events/events';
 import clientEvents from '../../../common/events/client';
@@ -28,6 +31,9 @@ class Application {
 
         this.members = new MemberList(this.pixi);
         this.bottle = new Bottle(this.pixi);
+        this.heart = new Heart(this.pixi);
+        this.menu = new Menu(this.pixi);
+        this.mail = new Mail(this.pixi);
 
         this.decisionDialog = new DecisionDialog(this);
         this.decisionDialog.onYes(() => {
@@ -40,9 +46,17 @@ class Application {
         });
         this.decisionDialog.init();
 
+        this.client.on(clientEvents.ERROR, (data) => {
+            const p = document.createElement('p');
+            p.textContent = `${data.code}: ${data.message}`;
+            document.getElementById('errors-wrap').append(p);
+        })
+
         this.client.on(clientEvents.CHAT_NEW_MESSAGE, (data) => {
             const chat = document.getElementById('chat');
-            chat.value += `${data.member.name}: ${data.message}\n\n`;
+            const message = document.createElement('p');
+            message.innerHTML = `<b>${data.memberId.split('-')[1]}</b>: ${data.message}`;
+            chat.appendChild(message);
             chat.scrollTop = chat.scrollHeight;
         });
 
@@ -108,7 +122,6 @@ class Application {
             } else {
                 let decision = isHost(this.store.getState()) ? event.memberDecision : event.hostDecision;
                 if (!_.isUndefined(decision)) {
-                    console.log('!!!!!!!', decision);
                     this.decisionDialog.memberDecision = decision;
                 }
             }
@@ -194,6 +207,8 @@ class Application {
 
             this.members.kisses = _.get(state, 'room.kisses', {});
 
+            this.heart.count = _.get(state, `room.kisses.${_.get(state, 'client.clientId')}`, 0);
+
             // Provide properties to bottle component
             isHost(state) ? this.bottle.show() : this.bottle.hide();
         });
@@ -201,8 +216,8 @@ class Application {
 
     _initPixi() {
         const pixi = new PIXI.Application({
-            width: 1796,
-            height: 1725,
+            width: 1796 + 300,
+            height: 1825,
             antialias: true,    // default: false
             transparent: false, // default: false
             resolution: 0.5       // default: 1
@@ -213,12 +228,13 @@ class Application {
         bg.anchor.y = 0;
         bg.position.x = 0;
         bg.position.y = 0;
+        bg.scale.set(1.3)
         pixi.stage.addChild(bg);
 
         const table = new PIXI.Sprite.from('assets/table.png');
         table.anchor.set(0.5)
         table.scale.set(0.7)
-        table.position.x = pixi.screen.width/2;
+        table.position.x = pixi.screen.width/2 + 150;
         table.position.y = pixi.screen.height/2;
         pixi.stage.addChild(table);
 

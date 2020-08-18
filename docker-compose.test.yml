@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  nodejs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    links:
+      - db
+  db:
+    extends:
+      file: docker-compose.yml
+      service: db
+    environment:
+      POSTGRES_PASSWORD: bottle
+      POSTGRES_DB: bottle_test

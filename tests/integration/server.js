@@ -61,6 +61,10 @@ describe('Server', function () {
             done();
         });
 
+        client.once(clientEvents.ERROR, (event) => {
+            console.error(event);
+        })
+
         client.sendEvent(new RegisterEvent({
             id: memberIds[0],
             name: `test ${faker.name.firstName()}`
@@ -206,9 +210,7 @@ describe('Server', function () {
                 client2.on(clientEvents.DECISION, event => res(event));
             }),
             new Promise(res => {
-                res();
-                // todo: kisses make works
-                // client2.on(clientEvents.SET_KISSES, event => res(event));
+                client2.on(clientEvents.SET_KISSES, event => res(event));
             }),
             new Promise(res => {
                 client2.on(clientEvents.SET_HOST, event => res(event));
@@ -223,9 +225,8 @@ describe('Server', function () {
             expect(results[0].isReady).to.be.ok;
             expect(results[0].isCouple).to.be.ok;
 
-            // todo: make kisses works
-            // assert.equal(results[1].kisses['id 1'], 1);
-            // assert.equal(results[1].kisses['id 2'], 1);
+            expect(results[1].kisses[memberIds[0]]).to.be.equal(1);
+            expect(results[1].kisses[memberIds[1]]).to.be.equal(1);
 
             expect(results[2].memberId).to.be.equal(memberIds[1]);
 

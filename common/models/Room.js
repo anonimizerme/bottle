@@ -1,9 +1,7 @@
-const assert = require('assert');
 const _ = require('lodash');
 const uuid = require('uuid');
 
 const BaseModel = require('./BaseModel');
-const Member = require('./Member');
 
 const ROOM_LIMIT = 12;
 
@@ -18,13 +16,14 @@ class Room extends BaseModel {
             properties: {
                 memberIds: {type: 'array', items: {type: 'string'}, maxItems: ROOM_LIMIT},
                 hostMemberId: {type: ['string', 'null']},
-                coupleMemberId: {type: ['string', 'null']}
+                coupleMemberId: {type: ['string', 'null']},
+                memberKisses: {type: 'object'}
             }
         };
     }
 
     static get jsonAttributes() {
-        return ['memberIds'];
+        return ['memberIds', 'memberKisses'];
     }
 
     static get virtualAttributes() {
@@ -40,7 +39,8 @@ class Room extends BaseModel {
             id: uuid.v4(),
             memberIds: [],
             hostMemberId: null,
-            coupleMemberId: null
+            coupleMemberId: null,
+            memberKisses: {}
         })
     }
 

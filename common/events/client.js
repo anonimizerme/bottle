@@ -1,4 +1,5 @@
 module.exports = {
+    ERROR: '$error',
     REGISTERED: '$registered',
     ROOM: '$room',
     SPIN_RESULT: '$spinResult',

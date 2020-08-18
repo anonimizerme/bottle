@@ -15,13 +15,13 @@ export const getPosition = (screen, memberIndex, maxCount) => {
 
     let coordinates;
 
-    const angle = 2 / maxCount * memberIndex * Math.PI;
+    const angle = 2 * Math.PI / maxCount * memberIndex;
 
     coordinates = {
         // x: tableSize / 2 + tableMargin * Math.sin(2*Math.PI / memberIndex),
         // y: tableSize / 2 + tableMargin * Math.sin(2*Math.PI / memberIndex),
-        x: ((tableSize + tableMargin) / 2) * Math.sin(angle) + screen.width / 2 - memberImageSize.width / 2,
-        y: ((tableSize + tableMargin) / 2) * Math.cos(angle) + screen.height / 2 - memberImageSize.height / 2,
+        x: ((tableSize + tableMargin) / 2) * Math.cos(angle) + screen.width / 2 - memberImageSize.width / 2 + 150,
+        y: ((tableSize + tableMargin) / 2) * Math.sin(angle) + screen.height / 2 - memberImageSize.height / 2,
     }
 
     return coordinates;

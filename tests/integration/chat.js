@@ -1,31 +1,56 @@
-const assert = require('assert');
+const {expect} = require('chai');
 const _ = require('lodash');
+const uuid = require('uuid');
 
+const {init: initKnex, destroy: destroyKnex} = require('../../server/knex');
 const Server = require('../../server/server').Server;
 const Client = require('../../common/client');
 const clientEvents = require('../../common/events/client');
 const {RegisterEvent, ChatMessageEvent, JoinEvent} = require('../../common/events/events');
+const Room = require('../../common/models/Room');
+const Member = require('../../common/models/Member');
 
 const PORT = 3030;
 const URL = `http://localhost:${PORT}`;
 
 describe('Chat', function () {
+    this.timeout(10000);
+
     let server;
     let clients = [];
 
-    before(function() {
+    const memberIds = [
+        uuid.v4(),
+        uuid.v4(),
+    ]
+
+    before(async function() {
+        initKnex();
+
+        // Clear DB before run test
+        // todo: use test db for tests
+        await Promise.all([
+            Room.query().delete(),
+            Member.query().delete()
+        ]);
+
         server = (new Server()).init(PORT);
         for (let i=0; i<2; i++) {
             const client = (new Client()).init(URL);
 
             client.sendEvent(new RegisterEvent({
-                id: `id_${i}`,
+                id: memberIds[i],
                 name: `name ${i}`
             }));
 
-            client.sendEvent(new JoinEvent());
+            client.once(clientEvents.REGISTERED, (event) => {
+                client.sendEvent(new JoinEvent());
+            });
 
             clients.push(client);
+
+            // this timeout to add to the same room
+            await new Promise(res => setTimeout(res, 500));
         }
 
         return new Promise(res => setTimeout(res, 1000));
@@ -39,15 +64,11 @@ describe('Chat', function () {
             client.terminate();
             client = null;
         }
+
+        destroyKnex();
     });
 
-    it('Send message', function () {
-        clients[0].sendEvent(new ChatMessageEvent({
-            message: 'Hello!'
-        }))
-    });
-
-    it('Receive message', function () {
+    it('Send and receive message', function () {
         this.timeout(500);
 
         let promises = clients.map(client => {
@@ -59,8 +80,8 @@ describe('Chat', function () {
         clients[0].sendEvent(new ChatMessageEvent({message: 'Test 123'}));
 
         return Promise.all(promises).then((results) => {
-            assert.equal(results[1].member.id, 'id_0');
-            assert.equal(results[1].message, 'Test 123');
+            expect(results[1].memberId).to.be.equal(memberIds[0]);
+            expect(results[1].message).to.be.equal('Test 123');
         })
     });
 });

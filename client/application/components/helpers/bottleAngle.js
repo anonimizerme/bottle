@@ -2,8 +2,10 @@ import * as PIXI from 'pixi.js';
 
 import {getPosition} from './memberPositions';
 
-export const getAngle = (screen, memberIndex) => {
+export const getAngle = (screen, memberIndex, maxCount) => {
     const memberPosition = getPosition(screen, memberIndex);
+
+    return 360 / maxCount * memberIndex;
 
     const centerX = screen.width / 2,
           centerY = screen.height / 2,

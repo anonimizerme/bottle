@@ -7,7 +7,7 @@
     "start": "node server/index.js",
     "test": "mocha tests/**/*.js",
     "client_dev": "webpack-dev-server",
-    "bots": "node src/bot.js"
+    "bots": "node common/bot.js"
   },
   "dependencies": {
     "animejs": "^3.2.0",

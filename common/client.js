@@ -63,6 +63,7 @@ class Client {
     handlerConnect() {
         logger.log(`${this._socket.id} is connected`);
 
+        this._socket.on(clientEvents.ERROR, this.handlerError.bind(this));
         this._socket.on(clientEvents.REGISTERED, this.handlerRegistered.bind(this));
         this._socket.on(clientEvents.ROOM, this.handlerRoom.bind(this));
         this._socket.on(clientEvents.SPIN_RESULT, this.handlerSpinResult.bind(this));
@@ -74,6 +75,12 @@ class Client {
         while (this._que.length > 0) {
             this.sendEvent(this._que.shift());
         }
+    }
+
+    handlerError(data) {
+        const errEvent = new events.ErrorEvent(data);
+
+        this._ee.emit(errEvent.eventName, errEvent);
     }
 
     handlerRegistered(data) {

@@ -27,8 +27,8 @@ class MembersManager {
      * @returns {Objection.QueryBuilder<this, this>}
      * @throws {Member.NotFoundError}
      */
-    getMember(id) {
-        return Member.query().findById(id).throwIfNotFound();
+    async getMember(id) {
+        return Member.query().findById(id);
     }
 
     /**
@@ -37,7 +37,7 @@ class MembersManager {
      * @returns {Objection.QueryBuilder<this, this>}
      * @throws {Member.NotFoundError}
      */
-    getMembers(ids) {
+    async getMembers(ids) {
         return Member.query().findByIds(ids);
     }
 

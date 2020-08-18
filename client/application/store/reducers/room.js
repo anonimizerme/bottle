@@ -63,7 +63,7 @@ function room(state = defaultState, {type, event}) {
         case SET_HOST:
             return {
                 ...state,
-                hostId: event.memberId
+                hostMemberId: event.memberId
             };
         case SET_KISSES:
             return {

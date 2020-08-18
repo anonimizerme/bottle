@@ -3,6 +3,7 @@ import * as PIXI from 'pixi.js';
 import anime from 'animejs';
 
 import Element from './core/Element';
+import {ROOM_LIMIT} from '../../../../common/models/Room';
 import {getAngle} from '../helpers/bottleAngle';
 
 const ANIM_ANGLE_PREPARE = () => ({
@@ -41,7 +42,7 @@ class Bottle extends Element {
 
         this.bottle = PIXI.Sprite.from('assets/bottle_01.png');
         this.bottle.anchor.set(0.5);
-        this.bottle.x = this.screen.width / 2;
+        this.bottle.x = this.screen.width / 2 + 150;
         this.bottle.y = this.screen.height / 2;
         this.bottle.interactive = true;
         this.bottle.cursor = 'pointer';
@@ -63,14 +64,15 @@ class Bottle extends Element {
         this.animation = anime({
             targets: this.bottle,
             angle: [ANIM_ANGLE_PREPARE()],
-            round: 10
+            round: 10,
         });
     }
 
     async spin() {
         let targetAngle = [ANIM_ANGLE_TARGET(this._targetAngle)];
+
         if (this.animation) {
-            await this.animation.finished;
+            // await this.animation.finished;
         } else {
             targetAngle.unshift(ANIM_ANGLE_PREPARE());
         }
@@ -88,7 +90,7 @@ class Bottle extends Element {
     }
 
     setStop(memberIndex) {
-        this._targetAngle = getAngle(this.screen, memberIndex);
+        this._targetAngle = getAngle(this.screen, memberIndex, ROOM_LIMIT) + 90;
     }
 
     reset() {

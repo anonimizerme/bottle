@@ -54,6 +54,34 @@ class BaseEvent {
     }
 }
 
+class ErrorEvent extends BaseEvent {
+    get eventName() {
+        return clientEvents.ERROR;
+    }
+
+    get isSentFromServer() {
+        return true;
+    }
+
+    get schema() {
+        return {
+            type: 'object',
+            properties: {
+                code: {type: 'integer', required: true},
+                message: {type: 'string', required: true}
+            }
+        }
+    }
+
+    get code() {
+        return this.prop('code');
+    }
+
+    get message() {
+        return this.prop('message');
+    }
+}
+
 class RegisterEvent extends BaseEvent {
     get eventName() {
         return serverEvents.REGISTER;
@@ -338,14 +366,14 @@ class ChatNewMessageEvent extends BaseEvent {
         return {
             type: 'object',
             properties: {
-                member: {type: 'object', required: true},
+                memberId: {type: 'string', required: true},
                 message: {type: 'string', required: true},
             }
         }
     }
 
-    get member() {
-        return this.prop('member');
+    get memberId() {
+        return this.prop('memberId');
     }
 
     get message() {
@@ -353,6 +381,7 @@ class ChatNewMessageEvent extends BaseEvent {
     }
 }
 
+module.exports.ErrorEvent = ErrorEvent;
 module.exports.RegisterEvent = RegisterEvent;
 module.exports.RegisteredEvent = RegisteredEvent;
 module.exports.JoinEvent = JoinEvent;

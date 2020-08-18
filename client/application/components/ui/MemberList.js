@@ -33,7 +33,7 @@ class MemberList extends Element {
             for (let i=0; i<this._list.length; i++) {
                 let memberId = this._list[i];
 
-                if (!_.has(this._objects, memberId)) {
+                if (!_.has(this.objects, memberId)) {
                     const member = new Member(this.pixi, {image: faker.image.avatar(), isMe: memberId == app.store.getState().client.clientId});
                     member.container.position = getPosition(this.screen, i, ROOM_LIMIT);
                     this.objects[memberId] = member;

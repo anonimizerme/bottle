@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const faker = require('faker');
+const uuid = require('uuid');
 
 const Client = require('./client');
 const clientEvents = require('./events/client');
@@ -41,7 +42,7 @@ let hostId;
 for (let i=0; i<amount; i++) {
     const obj = {
         client: (new Client()).init(URL),
-        id: `id_${i}`,
+        id: uuid.v4(),
         name: `name ${i}`,
     };
 
@@ -55,9 +56,9 @@ for (let i=0; i<amount; i++) {
     });
 
     obj.client.on(clientEvents.ROOM, (event) => {
-        hostId = event.host.id;
+        hostId = event.hostMemberId;
 
-        if (event.members.length > 1) {
+        if (event.memberIds.length > 1) {
             if (hostId == obj.id) {
                 setTimeout(() => {
                     obj.client.sendEvent(new SpinEvent());
@@ -68,12 +69,12 @@ for (let i=0; i<amount; i++) {
         setInterval(() => {
             setTimeout(() => {
                 obj.client.sendEvent(new ChatMessageEvent({message: faker.lorem.sentence()}))
-            }, (Math.random() * 10 + 10) * 1000)
+            }, (Math.random() * 10 + Math.random() * 20) * 1000)
         }, (Math.random() * 10 + 30) * 1000);
     });
 
     obj.client.on(clientEvents.SET_HOST, (event) => {
-        hostId = event.member.id;
+        hostId = event.memberId;
 
         if (hostId == obj.id) {
             setTimeout(() => {
@@ -84,7 +85,7 @@ for (let i=0; i<amount; i++) {
 
     obj.client.on(clientEvents.SPIN_RESULT, (event) => {
         setTimeout(() => {
-            if (hostId == obj.id || event.member.id == obj.id) {
+            if (hostId == obj.id || event.memberId == obj.id) {
                 obj.client.sendEvent(new MakeDecisionEvent({ok: Math.random() > 0.2}));
             }
         }, 6000);

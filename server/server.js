@@ -50,20 +50,12 @@ const onRegister = (socket) => async (data) => {
     logger.log(`onRegister with ${JSON.stringify(data)}`);
 
     const regEvent = new events.RegisterEvent(data);
-    let member;
 
-    try {
-        member = await membersManager.getMember(regEvent.id);
-    } catch (e) {
-        if (e instanceof Member.NotFoundError) {
-            // todo: saving correct image
-            member = Member.create(regEvent.id, regEvent.name, 'test.png');
-            await membersManager.addMember(member);
-        } else {
-            logger.log(`onRegister error: ${e.message}`);
-            // todo: catch db errors
-            return;
-        }
+    let member = await membersManager.getMember(regEvent.id);
+
+    if (_.isUndefined(member)) {
+        member = Member.create(regEvent.id, regEvent.name, 'test.png');
+        await membersManager.addMember(member);
     }
 
     membersToSocket[member.id] = socket.id;
@@ -84,22 +76,15 @@ const onJoin = (socket) => async (data) => {
     }
 
     // Try to find member
-    let member;
-    try {
-        member = await membersManager.getMember(memberId);
-    } catch (e) {
-        if (e instanceof Member.NotFoundError) {
-            // todo: think about errors in websocket
-            return;
-        } else {
-            throw e;
-        }
+    const member = await membersManager.getMember(memberId);
+    if (_.isUndefined(member)) {
+        return serverInstance.sendEvent(soclet, new events.ErrorEvent({code: 1, message: `[onJoin] Can't find memberId ${memberId}`}));
     }
 
     let room = await roomsManager.getRoomWithMember(member);
     if (_.isUndefined(room)) {
         room = await roomsManager.getAvailableRoom();
-        await roomsManager.addMember(room, member);
+        room = await roomsManager.addMember(room, member);
     }
 
     // get members for this room
@@ -125,16 +110,9 @@ const onSpin = (socket) => async (data) => {
     }
 
     // Try to find member
-    let member;
-    try {
-        member = await membersManager.getMember(memberId);
-    } catch (e) {
-        if (e instanceof Member.NotFoundError) {
-            // todo: think about errors in websocket
-            return;
-        } else {
-            throw e;
-        }
+    const member = await membersManager.getMember(memberId);
+    if (_.isUndefined(member)) {
+        return serverInstance.sendEvent(socket, new events.ErrorEvent({code: 1, message: `[onSpin] Can't find memberId ${memberId}`}));
     }
 
     // Try to find room
@@ -179,16 +157,9 @@ const onMakeDecision = (socket) => async (data) => {
     }
 
     // Try to find member
-    let member;
-    try {
-        member = await membersManager.getMember(memberId);
-    } catch (e) {
-        if (e instanceof Member.NotFoundError) {
-            // todo: think about errors in websocket
-            return;
-        } else {
-            throw e;
-        }
+    const member = await membersManager.getMember(memberId);
+    if (_.isUndefined(member)) {
+        return serverInstance.sendEvent(socket, new events.ErrorEvent({code: 1, message: `[onMakeDecision] Can't find memberId ${memberId}`}));
     }
 
     // Try to find room
@@ -232,13 +203,10 @@ const onMakeDecision = (socket) => async (data) => {
     if (decision.isReady) {
         // Update and send kisses
         if (decision.isCouple) {
-            // todo: update kisses storage
-            // room.kissesStorage.add(room.host.id);
-            // room.kissesStorage.add(room.coupleMember.id);
-
-            // serverInstance.sendRoomEvent(room.id, new events.SetKissesEvent({
-            //     kisses: room.kissesStorage.json
-            // }));
+            await roomsManager.addKissesForCouple(room);
+            serverInstance.sendRoomEvent(room.id, new events.SetKissesEvent({
+                kisses: room.toJSON().memberKisses
+            }));
         }
 
         // Delete decision if it's ready and sent
@@ -248,9 +216,7 @@ const onMakeDecision = (socket) => async (data) => {
 
     // Change host
     if (decision.isReady) {
-        console.log('AAAAAAA', room.hostMemberId);
         await roomsManager.changeHost(room);
-        console.log('BBBBBB', room.hostMemberId);
 
         serverInstance.sendRoomEvent(room.id, new events.SetHostEvent({
             memberId: room.hostMemberId
@@ -258,7 +224,7 @@ const onMakeDecision = (socket) => async (data) => {
     }
 };
 
-const onChatMessage = (socket) => (data) => {
+const onChatMessage = (socket) => async (data) => {
     logger.log(`onChatMessage with ${JSON.stringify(data)}`);
 
     // Get memberId for socketId
@@ -271,21 +237,19 @@ const onChatMessage = (socket) => (data) => {
     const chatMessageEvent = new events.ChatMessageEvent(data);
 
     // Try to find member
-    const member = membersManager.getMember(memberId);
-
+    const member = await membersManager.getMember(memberId);
     if (_.isUndefined(member)) {
-        // todo: think about errors in websocket
-        return;
+        return serverInstance.sendEvent(socket, new events.ErrorEvent({code: 1, message: `[onChatMessage] Can't find memberId ${memberId}`}));
     }
 
-    let room = roomsManager.getRoomWithMember(member);
+    // Try to find room
+    const room = await roomsManager.getRoomWithMember(member);
     if (_.isUndefined(room)) {
-        // todo: think about errors in websocket
-        return;
+        return serverInstance.sendEvent(socket, new events.ErrorEvent({code: 1, message: `[onChatMessage] Can't find room with member ${memberId}`}));
     }
 
     serverInstance.sendRoomEvent(room.id, new events.ChatNewMessageEvent({
-        member: member.json,
+        memberId: member.id,
         message: chatMessageEvent.message
     }));
 };
