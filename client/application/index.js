@@ -8,9 +8,11 @@ const store = getStore(clientId);
 const stateMachine = new StateMachine((state) => console.log(`stateMachine: ${JSON.stringify(state.value)}`));
 let app = new Application(store, stateMachine);
 
-app.attachToDocument();
-window.app = app;
-app.render();
+app.init().then(() => {
+    app.attachToDocument();
+    window.app = app;
+    app.render();
+});
 
 export default app;
 //

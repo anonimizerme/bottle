@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 
+import loader from '../../assets/loader';
 import Element from './core/Element';
 import Kisses from './Kisses';
 import {memberImageSize} from '../helpers/memberPositions';
@@ -47,7 +48,7 @@ class Member extends Element {
         }
 
         if (_.isNull(this.border) && Math.random() > 0.3) {
-            this.border = new PIXI.Sprite.from(`assets/borders/b${Math.round(Math.random()*2)+1}.png`);
+            this.border = new PIXI.Sprite(loader.resources[`borders.0${Math.round(Math.random()*2)+1}`].texture);
             this.border.name = 'border';
             this.border.width = memberImageSize.width + 30 * memberImageSize.width / 100;
             this.border.height = memberImageSize.height + 30 * memberImageSize.height / 100;

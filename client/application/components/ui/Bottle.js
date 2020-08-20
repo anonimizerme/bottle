@@ -2,6 +2,7 @@ import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 import anime from 'animejs';
 
+import loader from '../../assets/loader';
 import Element from './core/Element';
 import {ROOM_LIMIT} from '../../../../common/models/Room';
 import {getAngle} from '../helpers/bottleAngle';
@@ -40,7 +41,7 @@ class Bottle extends Element {
             return;
         }
 
-        this.bottle = PIXI.Sprite.from('assets/bottle_01.png');
+        this.bottle = new PIXI.Sprite(loader.resources['bottles.01'].texture);
         this.bottle.anchor.set(0.5);
         this.bottle.x = this.screen.width / 2 + 150;
         this.bottle.y = this.screen.height / 2;

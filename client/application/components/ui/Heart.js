@@ -2,6 +2,7 @@ import _ from 'lodash';
 import * as PIXI from 'pixi.js';
 import anime from 'animejs';
 
+import loader from '../../assets/loader';
 import Element from './core/Element';
 import {ROOM_LIMIT} from '../../../../common/models/Room';
 import {getAngle} from '../helpers/bottleAngle';
@@ -21,7 +22,7 @@ class Heart extends Element {
             return;
         }
 
-        this.icon = PIXI.Sprite.from('assets/icons/heart.png');
+        this.icon = new PIXI.Sprite(loader.resources['icons.heart'].texture);
         this.icon.position.set(20, 20);
 
         this.text = new PIXI.Text('0', {
@@ -29,13 +30,10 @@ class Heart extends Element {
             fill: 0xffffff
         });
 
-        // todo: preload assets to get actually size
-        setTimeout(() => {
-            this.text.position.set(
-                this.icon.x + this.icon.width + 10,
-                this.icon.y + this.text.height / 4
-            );
-        }, 500)
+        this.text.position.set(
+            this.icon.x + this.icon.width + 10,
+            this.icon.y + this.text.height / 4
+        );
 
         this.addChild(this.icon);
         this.addChild(this.text);

@@ -6,6 +6,7 @@ window.PIXI = PIXI;
 import config from '../config';
 import {actions} from './StateMachine';
 import Client from '../../../common/client';
+import loader from '../assets/loader';
 import MemberList from './ui/MemberList';
 import Bottle, {ON_CLICK, ON_STOP} from './ui/Bottle';
 import Heart from './ui/Heart';
@@ -21,13 +22,17 @@ const isInCouple = (state) => isHost(state) || _.get(state, 'room.resultMemberId
 
 class Application {
     constructor(store, stateMachine) {
-        this.pixi = this._initPixi();
-
         this.store = store;
         this.stateMachine = stateMachine;
 
         this.client = new Client();
         this.client.init(`${config.server.protocol}://${config.server.host}:${config.server.port}`);
+    }
+
+    async init() {
+        await loader.load();
+
+        this.pixi = this._initPixi();
 
         this.members = new MemberList(this.pixi);
         this.bottle = new Bottle(this.pixi);
@@ -223,7 +228,7 @@ class Application {
             resolution: 0.5       // default: 1
         });
 
-        const bg = new PIXI.Sprite.from('assets/bg/bg_01.jpg');
+        const bg = new PIXI.Sprite(loader.resources['bg.01'].texture);
         bg.anchor.x = 0;
         bg.anchor.y = 0;
         bg.position.x = 0;
@@ -231,7 +236,7 @@ class Application {
         bg.scale.set(1.3)
         pixi.stage.addChild(bg);
 
-        const table = new PIXI.Sprite.from('assets/table.png');
+        const table = new PIXI.Sprite(loader.resources['table'].texture);
         table.anchor.set(0.5)
         table.scale.set(0.7)
         table.position.x = pixi.screen.width/2 + 150;
