@@ -10,16 +10,14 @@ class BaseEvent {
         if (!_.isUndefined(object)) {
             this.object = object;
         }
-    }
 
-    prop(key, val) {
-        // Return value
-        if (_.isUndefined(val)) {
-            return this._props[key]
+        // make setters and getters for properties
+        for (let key in _.get(this.schema, 'properties', {})) {
+            Object.defineProperty(this, key, {
+                get: () => this._props[key],
+                set: (val) => this._props[key] = val
+            })
         }
-
-        // Set value
-        this._props[key] = val;
     }
 
     set object(object) {
@@ -72,14 +70,6 @@ class ErrorEvent extends BaseEvent {
             }
         }
     }
-
-    get code() {
-        return this.prop('code');
-    }
-
-    get message() {
-        return this.prop('message');
-    }
 }
 
 class RegisterEvent extends BaseEvent {
@@ -100,22 +90,6 @@ class RegisterEvent extends BaseEvent {
             }
         }
     }
-
-    set id(id) {
-        this.prop('id', id);
-    }
-
-    get id() {
-        return this.prop('id');
-    }
-
-    set name(name) {
-        this.prop('name', name);
-    }
-
-    get name() {
-        return this.prop('name');
-    }
 }
 
 class RegisteredEvent extends BaseEvent {
@@ -134,10 +108,6 @@ class RegisteredEvent extends BaseEvent {
                 success: {type: 'boolean', required: true}
             }
         }
-    }
-
-    get success() {
-        return this.prop('success');
     }
 }
 
@@ -172,22 +142,6 @@ class RoomEvent extends BaseEvent {
             }
         }
     }
-
-    get id() {
-        return this.prop('id');
-    }
-
-    get hostMemberId() {
-        return this.prop('hostMemberId');
-    }
-
-    get memberIds() {
-        return this.prop('memberIds');
-    }
-
-    get kisses() {
-        return this.prop('kisses');
-    }
 }
 
 class SpinEvent extends BaseEvent {
@@ -217,10 +171,6 @@ class SpinResultEvent extends BaseEvent {
             }
         }
     }
-
-    get memberId() {
-        return this.prop('memberId');
-    }
 }
 
 class MakeDecisionEvent extends BaseEvent {
@@ -239,10 +189,6 @@ class MakeDecisionEvent extends BaseEvent {
                 ok: {type: 'boolean', required: true},
             }
         }
-    }
-
-    get ok() {
-        return this.prop('ok');
     }
 }
 
@@ -266,22 +212,6 @@ class DecisionEvent extends BaseEvent {
             }
         }
     }
-
-    get hostDecision() {
-        return this.prop('hostDecision');
-    }
-
-    get memberDecision() {
-        return this.prop('memberDecision');
-    }
-
-    get isReady() {
-        return this.prop('isReady');
-    }
-
-    get isCouple() {
-        return this.prop('isCouple');
-    }
 }
 
 class SetKissesEvent extends BaseEvent {
@@ -300,10 +230,6 @@ class SetKissesEvent extends BaseEvent {
                 kisses: {type: 'object', required: true}
             }
         }
-    }
-
-    get kisses() {
-        return this.prop('kisses');
     }
 }
 
@@ -324,10 +250,6 @@ class SetHostEvent extends BaseEvent {
             }
         }
     }
-
-    get memberId() {
-        return this.prop('memberId');
-    }
 }
 
 class ChatMessageEvent extends BaseEvent {
@@ -346,10 +268,6 @@ class ChatMessageEvent extends BaseEvent {
                 message: {type: 'string', required: true}
             }
         }
-    }
-
-    get message() {
-        return this.prop('message');
     }
 }
 
@@ -370,14 +288,6 @@ class ChatNewMessageEvent extends BaseEvent {
                 message: {type: 'string', required: true},
             }
         }
-    }
-
-    get memberId() {
-        return this.prop('memberId');
-    }
-
-    get message() {
-        return this.prop('message');
     }
 }
 

@@ -6,6 +6,7 @@ window.PIXI = PIXI;
 import config from '../config';
 import {actions} from './StateMachine';
 import Client from '../../../common/client';
+import screenUtil, {GAME_HEIGHT, GAME_WIDTH} from '../utils/screen';
 import loader from '../assets/loader';
 import MemberList from './ui/MemberList';
 import Bottle, {ON_CLICK, ON_STOP} from './ui/Bottle';
@@ -221,11 +222,11 @@ class Application {
 
     _initPixi() {
         const pixi = new PIXI.Application({
-            width: 1796 + 300,
-            height: 1825,
-            antialias: true,    // default: false
-            transparent: false, // default: false
-            resolution: 0.5       // default: 1
+            width: GAME_WIDTH,
+            height: GAME_HEIGHT,
+            antialias: true,
+            transparent: false,
+            resolution: 1
         });
 
         const bg = new PIXI.Sprite(loader.resources['bg.01'].texture);
@@ -261,6 +262,8 @@ class Application {
     }
 
     attachToDocument() {
+        document.getElementById('game').style.width = GAME_WIDTH * screenUtil.getGameScrenRatio() + 'px';
+        document.getElementById('game-wrap').style.height = GAME_HEIGHT * screenUtil.getGameScrenRatio() + 'px';
         document.getElementById('game').appendChild(this.pixi.view);
     }
 

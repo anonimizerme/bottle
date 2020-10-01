@@ -3,6 +3,8 @@ import getStore from './store';
 import StateMachine from './components/StateMachine';
 import Application from './components/Application';
 
+import '../sass/main.sass';
+
 const clientId = localstorage.getClientId();
 const store = getStore(clientId);
 const stateMachine = new StateMachine((state) => console.log(`stateMachine: ${JSON.stringify(state.value)}`));

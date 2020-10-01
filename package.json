@@ -11,8 +11,9 @@
   },
   "dependencies": {
     "animejs": "^3.2.0",
+    "css-loader": "^4.3.0",
     "dotenv": "^8.2.0",
-    "faker": "^4.1.0",
+    "faker": "^5.1.0",
     "jsonschema": "^1.2.5",
     "knex": "^0.21.1",
     "lodash": "^4.17.15",
@@ -20,9 +21,13 @@
     "pg": "^8.2.1",
     "pixi.js": "^5.2.1",
     "redux": "^4.0.5",
+    "sass": "^1.26.11",
+    "sass-loader": "^10.0.2",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
+    "style-loader": "^1.2.1",
     "uuid": "^8.3.0",
+    "vue": "^2.6.12",
     "xstate": "^4.9.1"
   },
   "devDependencies": {
@@ -30,7 +35,7 @@
     "dotenv-webpack": "^2.0.0",
     "html-webpack-plugin": "^4.2.0",
     "should": "^13.2.3",
-    "webpack": "^4.42.1",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
   }
