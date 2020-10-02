@@ -1,47 +1,16 @@
 module.exports = {
 
-    development: {
+    default: {
         client: 'postgresql',
         connection: {
             database: 'bottle',
             user: 'postgres',
-            password: 'bottle'
+            password: 'bottle',
+            acquireConnectionTimeout: 5000
         },
         migrations: {
             tableName: 'knex_migrations'
         }
-    },
-    //
-    // staging: {
-    //   client: 'postgresql',
-    //   connection: {
-    //     database: 'my_db',
-    //     user:     'username',
-    //     password: 'password'
-    //   },
-    //   pool: {
-    //     min: 2,
-    //     max: 10
-    //   },
-    //   migrations: {
-    //     tableName: 'knex_migrations'
-    //   }
-    // },
-    //
-    // production: {
-    //   client: 'postgresql',
-    //   connection: {
-    //     database: 'my_db',
-    //     user:     'username',
-    //     password: 'password'
-    //   },
-    //   pool: {
-    //     min: 2,
-    //     max: 10
-    //   },
-    //   migrations: {
-    //     tableName: 'knex_migrations'
-    //   }
-    // }
+    }
 
 };

@@ -3,7 +3,7 @@ const Knex = require('knex');
 
 const knexfile = require('../knexfile');
 
-const knex = Knex(knexfile.development);
+const knex = Knex(knexfile.default);
 
 module.exports.init = () => {
     Model.knex(knex);

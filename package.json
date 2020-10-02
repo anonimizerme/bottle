@@ -7,7 +7,9 @@
     "start": "node server/index.js",
     "test": "mocha tests/**/*.js",
     "client_dev": "webpack-dev-server",
-    "bots": "node common/bot.js"
+    "bots": "node common/bot.js",
+    "docker:rebuild": "docker-compose --no-cache build",
+    "container:start": "nodemon --watch server --watch common server/index.js --verbose"
   },
   "dependencies": {
     "animejs": "^3.2.0",
@@ -34,6 +36,7 @@
     "chai": "^4.2.0",
     "dotenv-webpack": "^2.0.0",
     "html-webpack-plugin": "^4.2.0",
+    "nodemon": "^2.0.4",
     "should": "^13.2.3",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.11",

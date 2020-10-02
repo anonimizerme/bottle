@@ -264,6 +264,8 @@ class Server {
 
         io.on('connection', onConnect);
 
+        console.log(`Server listens on ${port} port`);
+
         return this;
     }
 
