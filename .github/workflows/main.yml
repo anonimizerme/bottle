@@ -33,28 +33,23 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
 
-    # Install global and local dependencies
-    - name: Install dependencies
-      run: |
-        npm install mocha
-        npm install
+      # Install global and local dependencies
+      - name: Install dependencies
+        run: |
+          npm install mocha
+          npm install
 
-    # Run tests
-    - name: Run tests
-      run: npm run container:server:test
-      env:
-        # The hostname used to communicate with the PostgreSQL service container
-        POSTGRES_HOST: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: bottle
-        POSTGRES_DB: bottle
+      # Run tests
+      - name: Run tests
+        run: npm run container:server:test
+        env:
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: bottle
+          POSTGRES_DB: bottle
