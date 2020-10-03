@@ -34,10 +34,10 @@ describe('RoomsManager', function() {
         expect(room1.id).to.be.equal(room2.id);
     });
 
-    it('Add only one member', function () {
+    it('Add only one member', async function () {
         const member = Member.create(uuid.v4(), '_test', '_test');
-        const room = Room.create();
-        roomManager.addMember(room, member);
+        let room = await roomManager.getAvailableRoom();
+        room = await roomManager.addMember(room, member);
 
         expect(room.memberIds).to.eql([member.id]);
         expect(room.hostMemberId).to.equal(member.id);
@@ -50,9 +50,9 @@ describe('RoomsManager', function() {
             Member.create(id2, '_test', '_test')
         ];
 
-        const room = await roomManager.getAvailableRoom();
-        await roomManager.addMember(room, member1);
-        await roomManager.addMember(room, member2);
+        let room = await roomManager.getAvailableRoom();
+        room = await roomManager.addMember(room, member1);
+        room = await roomManager.addMember(room, member2);
 
         expect(room.memberIds).to.eql([id1, id2]);
         expect(room.hostMemberId).to.eql(id1);
@@ -61,8 +61,8 @@ describe('RoomsManager', function() {
     it('Get room for member', async function () {
         const member1 = Member.create(uuid.v4(), 'test', 'test');
         const member2 = Member.create(uuid.v4(), 'test2', 'test2');
-        const room = await roomManager.getAvailableRoom();
-        await roomManager.addMember(room, member1);
+        let room = await roomManager.getAvailableRoom();
+        room = await roomManager.addMember(room, member1);
 
         const [room1, room2] = await Promise.all([
             roomManager.getRoomWithMember(member1),
@@ -79,10 +79,10 @@ describe('RoomsManager', function() {
             Member.create(id1, '_test', '_test'),
             Member.create(id2, '_test', '_test')
         ];
-        const room = await roomManager.getAvailableRoom();
+        let room = await roomManager.getAvailableRoom();
 
-        await roomManager.addMember(room, member1);
-        await roomManager.addMember(room, member2);
+        room = await roomManager.addMember(room, member1);
+        room = await roomManager.addMember(room, member2);
         await roomManager.setHost(room, member2);
 
         expect(room.memberIds).to.eql([id1, id2]);

@@ -46,7 +46,7 @@ jobs:
 
       # Run tests
       - name: Run tests
-        run: env && npm run container:server:test
+        run: npm run container:server:test
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: postgres
