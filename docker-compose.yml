@@ -11,7 +11,9 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm run container:start
+    links:
+      - db
+    command: npm run container:server:start
 
   db:
     image: postgres

@@ -2,7 +2,7 @@ const {expect} = require('chai');
 const _ = require('lodash');
 const uuid = require('uuid');
 
-const {init: initKnex, destroy: destroyKnex} = require('../../server/knex');
+const {init: initKnex} = require('../../server/knex');
 const Server = require('../../server/server').Server;
 const Client = require('../../common/client');
 const clientEvents = require('../../common/events/client');
@@ -64,8 +64,6 @@ describe('Chat', function () {
             client.terminate();
             client = null;
         }
-
-        destroyKnex();
     });
 
     it('Send and receive message', function () {

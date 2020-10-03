@@ -3,7 +3,7 @@ const _ = require('lodash');
 const uuid = require('uuid');
 const faker = require('faker');
 
-const {init: initKnex, destroy: destroyKnex} = require('../../server/knex');
+const {init: initKnex} = require('../../server/knex');
 const Server = require('../../server/server').Server;
 const Client = require('../../common/client');
 const clientEvents = require('../../common/events/client');
@@ -45,8 +45,6 @@ describe('Server', function () {
             client2.terminate();
             client2 = null;
         }
-
-        destroyKnex();
     });
 
     it('Register event', function (done) {

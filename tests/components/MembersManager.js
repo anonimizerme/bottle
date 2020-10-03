@@ -1,7 +1,7 @@
 const uuid = require('uuid');
 const chai = require('chai');
 
-const {init: initKnex, destroy: destroyKnex} = require('../../server/knex');
+const {init: initKnex} = require('../../server/knex');
 const Member = require('../../common/models/Member');
 const MembersManager = require('../../server/components/MembersManager');
 
@@ -13,10 +13,6 @@ describe('MembersManager', function() {
     before(function() {
         initKnex();
     });
-
-    after(function() {
-        destroyKnex();
-    })
 
     beforeEach(async function () {
         membersManager = new MembersManager();

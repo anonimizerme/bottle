@@ -1,16 +1,9 @@
-version: '2'
+version: '3.8'
 
 services:
-  nodejs:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    links:
-      - db
+  server:
+    command: npm run container:server:test
+
   db:
-    extends:
-      file: docker-compose.yml
-      service: db
-    environment:
-      POSTGRES_PASSWORD: bottle
-      POSTGRES_DB: bottle_test
+    volumes:
+      - /var/lib/postgresql/data
