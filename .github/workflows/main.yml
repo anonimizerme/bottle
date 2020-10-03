@@ -40,13 +40,11 @@ jobs:
 
       # Install global and local dependencies
       - name: Install dependencies
-        run: |
-          npm install mocha
-          npm install
+        run: npm install
 
       # Run tests
       - name: Run tests
-        run: npm run container:server:test
+        run: env && npm run container:server:test
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: postgres
