@@ -261,9 +261,15 @@ class Application {
         }));
     }
 
+    _changeSize() {
+        document.getElementById('game').style.width = GAME_WIDTH * screenUtil.getGameScreenRatio() + 'px';
+        document.getElementById('game-wrap').style.height = GAME_HEIGHT * screenUtil.getGameScreenRatio() + 'px';
+    }
+
     attachToDocument() {
-        document.getElementById('game').style.width = GAME_WIDTH * screenUtil.getGameScrenRatio() + 'px';
-        document.getElementById('game-wrap').style.height = GAME_HEIGHT * screenUtil.getGameScrenRatio() + 'px';
+        this._changeSize();
+        screenUtil.onResizeWindow(this._changeSize.bind(this));
+
         document.getElementById('game').appendChild(this.pixi.view);
     }
 
