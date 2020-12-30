@@ -85,8 +85,8 @@ class RegisterEvent extends BaseEvent {
         return {
             type: 'object',
             properties: {
-                id:   {type: 'string', required: true},
-                name: {type: 'string', required: true}
+                socialProvider: {type: 'string', required: true},
+                socialId:   {type: 'string', required: true},
             }
         }
     }
@@ -105,6 +105,9 @@ class RegisteredEvent extends BaseEvent {
         return {
             type: 'object',
             properties: {
+                id: {type: 'string', required: true},
+                firstName: {type: 'string', required: true},
+                lastName: {type: 'string', required: true},
                 success: {type: 'boolean', required: true}
             }
         }

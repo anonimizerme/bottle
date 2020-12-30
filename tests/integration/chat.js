@@ -39,8 +39,8 @@ describe('Chat', function () {
             const client = (new Client()).init(URL);
 
             client.sendEvent(new RegisterEvent({
-                id: memberIds[i],
-                name: `name ${i}`
+                socialProvider: 'fake',
+                socialId: memberIds[i]
             }));
 
             client.once(clientEvents.REGISTERED, (event) => {

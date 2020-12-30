@@ -12,5 +12,9 @@ export default {
         }
 
         return clientId;
+    },
+
+    setClientId(clientId) {
+        localStorage.setItem(CLIENT_ID, clientId);
     }
 }

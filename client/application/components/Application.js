@@ -4,6 +4,7 @@ import faker from 'faker';
 window.PIXI = PIXI;
 
 import config from '../config';
+import socialProvider from './social';
 import {actions} from './StateMachine';
 import Client from '../../../common/client';
 import screenUtil, {GAME_HEIGHT, GAME_WIDTH} from '../utils/screen';
@@ -17,6 +18,7 @@ import DecisionDialog from './DecisionDialog';
 import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent, ChatMessageEvent} from '../../../common/events/events';
 import clientEvents from '../../../common/events/client';
 import {setRoom, setSpinResult, setHost, setKisses} from '../store/reducers/room';
+import {setClientId} from '../store/reducers/client';
 
 const isHost = (state) => _.get(state, 'room.hostMemberId') === _.get(state, 'client.clientId');
 const isInCouple = (state) => isHost(state) || _.get(state, 'room.resultMemberId') === _.get(state, 'client.clientId');
@@ -71,7 +73,8 @@ class Application {
             document.getElementById('text').value = '';
         });
 
-        this.client.once(clientEvents.REGISTERED, (data) => {
+        this.client.once(clientEvents.REGISTERED, (event) => {
+            this.store.dispatch(setClientId(event));
             this.stateMachine.machine.send('REGISTERED');
         });
 
@@ -256,8 +259,8 @@ class Application {
 
         let stateClient = this.store.getState().client;
         this.client.sendEvent(new RegisterEvent({
-            id: stateClient.clientId,
-            name: faker.name.firstName(),
+            socialProvider: socialProvider.hasProvider ? socialProvider.getSocialId() : 'fake',
+            socialId: socialProvider.hasProvider ? socialProvider.getSocialId(): stateClient.clientId,
         }));
     }
 

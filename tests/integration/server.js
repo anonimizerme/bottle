@@ -18,7 +18,10 @@ describe('Server', function () {
     let server;
     let client, client2;
 
-    let memberIds = Array.from([1, 1], item => uuid.v4());
+    let memberIds = Array.from([1, 1], item => ({
+        socialId: uuid.v4(),
+        clientId: null
+    }));
 
     before(async function() {
         initKnex();
@@ -56,6 +59,8 @@ describe('Server', function () {
             expect(event.success).to.be.ok;
             expect(client.registered).to.be.ok;
 
+            memberIds[0].clientId = event.id;
+
             done();
         });
 
@@ -64,8 +69,8 @@ describe('Server', function () {
         })
 
         client.sendEvent(new RegisterEvent({
-            id: memberIds[0],
-            name: `test ${faker.name.firstName()}`
+            socialProvider: 'fake',
+            socialId: memberIds[0].socialId,
         }));
 
         let fail = setTimeout(() => {
@@ -79,7 +84,7 @@ describe('Server', function () {
         client.once(clientEvents.ROOM, (event) => {
             expect(event.id).to.be.ok;
             expect(event.memberIds).to.be.lengthOf(1);
-            expect(event.memberIds).to.include(memberIds[0]);
+            expect(event.memberIds).to.include(memberIds[0].clientId);
 
             done();
         });
@@ -106,22 +111,24 @@ describe('Server', function () {
         client2 = (new Client()).init(URL);
 
         client2.once(clientEvents.REGISTERED, (event) => {
+            memberIds[1].clientId = event.id;
+
             client2.sendEvent(new JoinEvent());
         });
 
         client2.once(clientEvents.ROOM, (event) => {
             expect(event.id).to.be.ok;
             expect(event.memberIds).to.be.lengthOf(2);
-            expect(event.memberIds).to.include(memberIds[0]);
-            expect(event.memberIds).to.include(memberIds[1]);
-            expect(event.hostMemberId).to.be.equal(memberIds[0]);
+            expect(event.memberIds).to.include(memberIds[0].clientId);
+            expect(event.memberIds).to.include(memberIds[1].clientId);
+            expect(event.hostMemberId).to.be.equal(memberIds[0].clientId);
 
             done();
         });
 
         client2.sendEvent(new RegisterEvent({
-            id: memberIds[1],
-            name: `test ${faker.name.firstName()}`
+            socialProvider: 'fake',
+            socialId: memberIds[1].socialId
         }));
     });
 
@@ -154,8 +161,8 @@ describe('Server', function () {
         client.sendEvent(new SpinEvent());
 
         return Promise.all(promises).then((results) => {
-            expect(results[0].memberId).to.be.equal(memberIds[1]);
-            expect(results[1].memberId).to.be.equal(memberIds[1]);
+            expect(results[0].memberId).to.be.equal(memberIds[1].clientId);
+            expect(results[1].memberId).to.be.equal(memberIds[1].clientId);
 
             client.removeAllListeners();
             client2.removeAllListeners();
@@ -223,10 +230,10 @@ describe('Server', function () {
             expect(results[0].isReady).to.be.ok;
             expect(results[0].isCouple).to.be.ok;
 
-            expect(results[1].kisses[memberIds[0]]).to.be.equal(1);
-            expect(results[1].kisses[memberIds[1]]).to.be.equal(1);
+            expect(results[1].kisses[memberIds[0].clientId]).to.be.equal(1);
+            expect(results[1].kisses[memberIds[1].clientId]).to.be.equal(1);
 
-            expect(results[2].memberId).to.be.equal(memberIds[1]);
+            expect(results[2].memberId).to.be.equal(memberIds[1].clientId);
 
             client.removeAllListeners();
             client2.removeAllListeners();

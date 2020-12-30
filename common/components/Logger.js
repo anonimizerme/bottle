@@ -10,6 +10,10 @@ class Logger {
     log(message) {
         console.log(`${this._name}:\t${message}`);
     }
+
+    error(error) {
+        console.error(`${this._name}: -- ERROR --\t${error.message}`);
+    }
 }
 
 module.exports = (name) => {

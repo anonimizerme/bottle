@@ -7,6 +7,7 @@ const Member = require('../common/models/Member');
 const MembersManager = require('./components/MembersManager');
 const RoomsManager = require('./components/RoomsManager');
 const DecisionsManager = require('./components/DecisionsManager');
+const SocialProvider = require('./components/social/SocialProvider');
 const logger = require('../common/components/Logger')('server');
 
 let io;
@@ -47,22 +48,31 @@ const onDisconnect = (socket) => (reason) => {
  * @returns {function(...[*]=)}
  */
 const onRegister = (socket) => async (data) => {
-    logger.log(`onRegister with ${JSON.stringify(data)}`);
+    try {
+        logger.log(`onRegister with ${JSON.stringify(data)}`);
 
-    const regEvent = new events.RegisterEvent(data);
+        const regEvent = new events.RegisterEvent(data);
+        const socialProvider = new SocialProvider(regEvent.socialProvider, regEvent.socialId);
 
-    let member = await membersManager.getMember(regEvent.id);
+        let member = await membersManager.getMemberBySocial(regEvent.socialProvider, regEvent.socialId);
 
-    if (_.isUndefined(member)) {
-        member = Member.create(regEvent.id, regEvent.name, 'test.png');
-        await membersManager.addMember(member);
+        if (_.isUndefined(member)) {
+            const socialProfile = await socialProvider.getProfile();
+            member = Member.create(regEvent.socialProvider, regEvent.socialId, [socialProfile.first_name, socialProfile.last_name].join(' '), 'test.png');
+            await membersManager.addMember(member);
+        }
+
+        membersToSocket[member.id] = socket.id;
+
+        serverInstance.sendEvent(socket, new events.RegisteredEvent({
+            id: member.id,
+            firstName: member.name.split(' ')[0],
+            lastName: member.name.split(' ')[1],
+            success: true
+        }));
+    } catch (e) {
+        logger.error(e);
     }
-
-    membersToSocket[member.id] = socket.id;
-
-    serverInstance.sendEvent(socket, new events.RegisteredEvent({
-        success: true
-    }));
 };
 
 const onJoin = (socket) => async (data) => {

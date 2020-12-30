@@ -1,3 +1,5 @@
+const uuid = require('uuid');
+
 const BaseModel = require('./BaseModel');
 
 class Member extends BaseModel {
@@ -8,23 +10,29 @@ class Member extends BaseModel {
     static get jsonSchema() {
         return {
             type: 'object',
-            required: ['name', 'picture'],
+            required: ['socialProvider', 'socialId', 'name', 'picture'],
             properties: {
+                socialProvider: { type: 'string' },
+                socialId: { type: 'string' },
                 name: { type: 'string' },
-                picture: { type: 'string' }
+                picture: { type: 'string' },
             }
         };
     }
 
     /**
      * Create Member instance
-     * @param id
+     * @param socialProvider
+     * @param socialId
      * @param name
      * @param picture
      * @returns {Member}
      */
-    static create(id, name, picture) {
-        return this.fromJson({id, name, picture})
+    static create(socialProvider, socialId, name, picture) {
+        return this.fromJson({
+            id: uuid.v4(),
+            socialProvider, socialId, name, picture
+        })
     }
 }
 

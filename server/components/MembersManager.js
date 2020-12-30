@@ -22,6 +22,20 @@ class MembersManager {
     }
 
     /**
+     * Get Member by Social Provider and Social Id
+     * @param socialProvider
+     * @param socialId
+     * @returns {Objection.QueryBuilder<this, this>}
+     * @throws {Member.NotFoundError}
+     */
+    async getMemberBySocial(socialProvider, socialId) {
+        return Member.query().findOne({
+            social_provider: socialProvider,
+            social_id: socialId
+        });
+    }
+
+    /**
      * Get Member by Id
      * @param id
      * @returns {Objection.QueryBuilder<this, this>}
