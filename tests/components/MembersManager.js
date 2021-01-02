@@ -29,7 +29,7 @@ describe('MembersManager', function() {
     });
 
     it('Adding member', async function () {
-        const member = Member.create(uuid.v4(), '_test_name', '_test');
+        const member = Member.create('fake', uuid.v4(), '_test', '_test', '_test.png');
         await membersManager.addMember(member);
     });
 });

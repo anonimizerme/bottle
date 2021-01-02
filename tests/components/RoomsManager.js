@@ -35,7 +35,7 @@ describe('RoomsManager', function() {
     });
 
     it('Add only one member', async function () {
-        const member = Member.create(uuid.v4(), '_test', '_test');
+        const member = Member.create('fake', uuid.v4(), '_test', '_test', 'test.png');
         let room = await roomManager.getAvailableRoom();
         room = await roomManager.addMember(room, member);
 
@@ -46,21 +46,21 @@ describe('RoomsManager', function() {
     it('Add two member', async function () {
         const [id1, id2] = [uuid.v4(), uuid.v4()];
         const [member1, member2] = [
-            Member.create(id1, '_test', '_test'),
-            Member.create(id2, '_test', '_test')
+            Member.create('fake', id1, '_test', '_test', 'test.png'),
+            Member.create('fake', id2, '_test', '_test', 'test.png')
         ];
 
         let room = await roomManager.getAvailableRoom();
         room = await roomManager.addMember(room, member1);
         room = await roomManager.addMember(room, member2);
 
-        expect(room.memberIds).to.eql([id1, id2]);
-        expect(room.hostMemberId).to.eql(id1);
+        expect(room.memberIds).to.eql([member1.id, member2.id]);
+        expect(room.hostMemberId).to.eql(member1.id);
     });
 
     it('Get room for member', async function () {
-        const member1 = Member.create(uuid.v4(), 'test', 'test');
-        const member2 = Member.create(uuid.v4(), 'test2', 'test2');
+        const member1 = Member.create('fake', uuid.v4(), 'test', 'test', 'text.png');
+        const member2 = Member.create('fake', uuid.v4(), 'test2', 'test2', 'test.png');
         let room = await roomManager.getAvailableRoom();
         room = await roomManager.addMember(room, member1);
 
@@ -76,8 +76,8 @@ describe('RoomsManager', function() {
     it('Add two member and set host', async function () {
         const [id1, id2] = [uuid.v4(), uuid.v4()];
         const [member1, member2] = [
-            Member.create(id1, '_test', '_test'),
-            Member.create(id2, '_test', '_test')
+            Member.create('fake', id1, '_test', '_test', 'test.png'),
+            Member.create('fake', id2, '_test', '_test', 'test.png')
         ];
         let room = await roomManager.getAvailableRoom();
 
@@ -85,13 +85,13 @@ describe('RoomsManager', function() {
         room = await roomManager.addMember(room, member2);
         await roomManager.setHost(room, member2);
 
-        expect(room.memberIds).to.eql([id1, id2]);
-        expect(room.hostMemberId).to.eql(id2);
+        expect(room.memberIds).to.eql([member1.id, member2.id]);
+        expect(room.hostMemberId).to.eql(member2.id);
     });
 
     it('Remove only one member', async function () {
         const id = uuid.v4();
-        const member = Member.create(id, '_test', '_test');
+        const member = Member.create('fake', id, '_test', '_test', 'test.png');
         const room = await roomManager.getAvailableRoom();
 
         await roomManager.addMember(room, member);
@@ -108,14 +108,14 @@ describe('RoomsManager', function() {
 
         for (let i = 0; i < 2; i++) {
             ids.push(uuid.v4());
-            members.push(Member.create(ids[i], '_test', '_test'));
+            members.push(Member.create('fake', ids[i], '_test', '_test', 'test.png'));
             await roomManager.addMember(room, members[i]);
         }
 
         await roomManager.removeMember(room, members[0]);
 
-        expect(room.memberIds).to.eql([ids[1]]);
-        expect(room.hostMemberId).to.equal(ids[1]);
+        expect(room.memberIds).to.eql([members[1].id]);
+        expect(room.hostMemberId).to.equal(members[1].id);
     });
 
     it('Remove last (host) of two members', async function () {
@@ -125,7 +125,7 @@ describe('RoomsManager', function() {
 
         for (let i = 0; i < 2; i++) {
             ids.push(uuid.v4());
-            members.push(Member.create(ids[i], '_test', '_test'));
+            members.push(Member.create('fake', ids[i], '_test', '_test', 'test.png'));
             await roomManager.addMember(room, members[i]);
         }
 
@@ -133,13 +133,13 @@ describe('RoomsManager', function() {
 
         await roomManager.removeMember(room, members[1]);
 
-        expect(room.memberIds).to.eql([ids[0]]);
-        expect(room.hostMemberId).to.equal(ids[0]);
+        expect(room.memberIds).to.eql([members[0].id]);
+        expect(room.hostMemberId).to.equal(members[0].id);
     });
 
     it('Get random member fail', async function () {
         const id = uuid.v4();
-        const member = Member.create(id, '_test', '_test');
+        const member = Member.create('fake', id, '_test', '_test', 'test.png');
         const room = await roomManager.getAvailableRoom();
 
         await roomManager.addMember(room, member);
@@ -159,8 +159,9 @@ describe('RoomsManager', function() {
         const room = await roomManager.getAvailableRoom();
 
         for (let i = 0; i < 3; i++) {
-            ids.push(uuid.v4());
-            members.push(Member.create(ids[i], '_test', '_test'));
+            const member = Member.create('fake', uuid.v4(), '_test', '_test', 'test.png');
+            members.push(member);
+            ids.push(member.id)
             await roomManager.addMember(room, members[i]);
         }
 
@@ -176,7 +177,7 @@ describe('RoomsManager', function() {
 
         for (let i = 0; i < 3; i++) {
             ids.push(uuid.v4());
-            members.push(Member.create(ids[i], '_test', '_test'));
+            members.push(Member.create('fake', ids[i], '_test', '_test', 'test.png'));
             await roomManager.addMember(room, members[i]);
         }
 
@@ -193,7 +194,7 @@ describe('RoomsManager', function() {
 
         for (let i = 0; i < 3; i++) {
             ids.push(uuid.v4());
-            members.push(Member.create(ids[i], '_test', '_test'));
+            members.push(Member.create('fake', ids[i], '_test', '_test', 'test.png'));
             await roomManager.addMember(room, members[i]);
         }
 
@@ -206,7 +207,7 @@ describe('RoomsManager', function() {
     it('New room when first is full', async function () {
         const room1 = await roomManager.getAvailableRoom();
         for (let i = 0; i < Room.ROOM_LIMIT; i++) {
-            await roomManager.addMember(room1, Member.create(uuid.v4(), 'test', 'test'));
+            await roomManager.addMember(room1, Member.create('fake', uuid.v4(), '_test', '_test', 'test.png'));
         }
 
         const room2 = await roomManager.getAvailableRoom();
