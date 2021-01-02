@@ -7,13 +7,14 @@ import Kisses from './Kisses';
 import {memberImageSize} from '../helpers/memberPositions';
 
 class Member extends Element {
-    constructor(pixi, {image, isMe}) {
+    constructor(pixi, {image, firstName, lastName}) {
         super(pixi);
 
         // Define props
         this.props = {
             image,
-            isMe
+            firstName,
+            lastName
         }
 
         // Define and init objects
@@ -60,9 +61,9 @@ class Member extends Element {
             this.addChild(this.border);
         }
 
-        if (_.isNull(this.text) && this.props.isMe) {
-            this.text = new PIXI.Text('я', {fill: 0xFFFFFF, fontSize: 30});
-            this.text.position.x = memberImageSize.width / 2;
+        if (_.isNull(this.text)) {
+            this.text = new PIXI.Text(`${this.props.firstName} ${this.props.lastName}`, {fill: 0xFFFFFF, fontSize: 30});
+            this.text.position.x = memberImageSize.width / 2 - this.text.width / 2;
             this.text.position.y = memberImageSize.height + 10;
 
             this.addChild(this.text);

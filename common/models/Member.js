@@ -10,11 +10,12 @@ class Member extends BaseModel {
     static get jsonSchema() {
         return {
             type: 'object',
-            required: ['socialProvider', 'socialId', 'name', 'picture'],
+            required: ['socialProvider', 'socialId', 'firstName', 'lastName', 'picture'],
             properties: {
                 socialProvider: { type: 'string' },
                 socialId: { type: 'string' },
-                name: { type: 'string' },
+                firstName: { type: 'string' },
+                lastName: { type: 'string' },
                 picture: { type: 'string' },
             }
         };
@@ -24,14 +25,19 @@ class Member extends BaseModel {
      * Create Member instance
      * @param socialProvider
      * @param socialId
-     * @param name
+     * @param firstName
+     * @param lastName
      * @param picture
      * @returns {Member}
      */
-    static create(socialProvider, socialId, name, picture) {
+    static create(socialProvider, socialId, firstName, lastName, picture) {
         return this.fromJson({
             id: uuid.v4(),
-            socialProvider, socialId, name, picture
+            socialProvider,
+            socialId,
+            firstName,
+            lastName,
+            picture
         })
     }
 }

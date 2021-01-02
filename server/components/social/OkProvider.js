@@ -56,11 +56,15 @@ class OkProvider {
 
     async getProfile() {
         const data = await this._apiRequest('users.getInfo', {
-            fields: 'first_name,last_name',
+            fields: 'first_name,last_name,pic1024x768',
             uids: this.socialId,
         });
 
-        return data[0];
+        return {
+            firstName: data[0].first_name,
+            lastName: data[0].last_name,
+            picture: data[0].pic1024x768
+        };
     }
 }
 

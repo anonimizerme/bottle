@@ -4,13 +4,14 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "dev": "docker-compose -p bottle-dev up -d && npm run docker-compose:logs",
+    "dev": "docker-compose -p bottle-dev stop && docker-compose -p bottle-dev up -d && npm run docker-compose:logs",
     "test": "docker-compose -p bottle-test -f docker-compose.yml -f docker-compose.test.yml run server npm run container:server:test",
     "posttest": "docker-compose -p bottle-test -f docker-compose.yml -f docker-compose.test.yml down",
     "start": "node server/index.js",
     "client_dev": "webpack-dev-server",
     "bots": "node common/bot.js",
-    "docker-compose:rebuild": "docker-compose -p bottle-dev build --no-cache --force-rm server",
+    "docker-server-console": "docker-compose -f docker-compose.yml -f docker-compose.test.yml run server /bin/sh",
+    "docker-compose:rebuild": "docker-compose -p bottle-dev stop && docker-compose -p bottle-dev build --no-cache --force-rm server",
     "docker-compose:logs": "concurrently -p [{name}] -n server \"docker-compose -p bottle-dev logs -f --tail=5 server\"",
     "container:server:start": "nodemon --watch server --watch common server/index.js --verbose",
     "container:server:test": "./node_modules/.bin/knex --env default migrate:latest && mocha --exit tests/**/*"

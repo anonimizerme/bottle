@@ -15,6 +15,8 @@ describe('RoomsManager', function() {
     it('Get OK profile', async function () {
         const profile = await socialProvider.getProfile();
 
+        console.log(profile);
+
         expect(profile.first_name).to.not.be.undefined;
         expect(profile.last_name).to.not.be.undefined;
     });

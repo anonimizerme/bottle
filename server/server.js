@@ -54,11 +54,17 @@ const onRegister = (socket) => async (data) => {
         const regEvent = new events.RegisterEvent(data);
         const socialProvider = new SocialProvider(regEvent.socialProvider, regEvent.socialId);
 
-        let member = await membersManager.getMemberBySocial(regEvent.socialProvider, regEvent.socialId);
+        let member;
+        // Try to find member for fake by id
+        if (regEvent.socialProvider === 'fake') {
+            member = await membersManager.getMember(regEvent.socialId);
+        } else {
+            member = await membersManager.getMemberBySocial(regEvent.socialProvider, regEvent.socialId);
+        }
 
         if (_.isUndefined(member)) {
             const socialProfile = await socialProvider.getProfile();
-            member = Member.create(regEvent.socialProvider, regEvent.socialId, [socialProfile.first_name, socialProfile.last_name].join(' '), 'test.png');
+            member = Member.create(regEvent.socialProvider, regEvent.socialId, socialProfile.firstName, socialProfile.lastName, socialProfile.picture);
             await membersManager.addMember(member);
         }
 
@@ -66,8 +72,8 @@ const onRegister = (socket) => async (data) => {
 
         serverInstance.sendEvent(socket, new events.RegisteredEvent({
             id: member.id,
-            firstName: member.name.split(' ')[0],
-            lastName: member.name.split(' ')[1],
+            firstName: member.firstName,
+            lastName: member.lastName,
             success: true
         }));
     } catch (e) {

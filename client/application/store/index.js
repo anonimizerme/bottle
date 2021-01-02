@@ -5,18 +5,14 @@ import room from './reducers/room';
 
 let store;
 
-export default (clientId) => {
+export default () => {
     if (!store) {
         const reducer = combineReducers({
             client,
             room,
         });
 
-        const initialState = {
-            client: {
-                clientId
-            }
-        };
+        const initialState = {};
 
         store = createStore(reducer, initialState,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
     }

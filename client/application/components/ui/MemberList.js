@@ -24,19 +24,23 @@ class MemberList extends Element {
         this._initialKissesSet = true;
     }
 
-    set list(memberIds) {
-        if (this._list !== memberIds) {
-            this._list = memberIds;
+    set list(members) {
+        if (this._list !== members) {
+            this._list = members;
 
             //todo: remove leaved members https://trello.com/c/nXTmtPfg
 
             for (let i=0; i<this._list.length; i++) {
-                let memberId = this._list[i];
+                let m = this._list[i];
 
-                if (!_.has(this.objects, memberId)) {
-                    const member = new Member(this.pixi, {image: faker.image.avatar(), isMe: memberId == app.store.getState().client.clientId});
+                if (!_.has(this.objects, m.id)) {
+                    const member = new Member(this.pixi, {
+                        image: m.picture,
+                        firstName: m.firstName,
+                        lastName: m.lastName
+                    });
                     member.container.position = getPosition(this.screen, i, ROOM_LIMIT);
-                    this.objects[memberId] = member;
+                    this.objects[member.id] = member;
                 }
             }
         }

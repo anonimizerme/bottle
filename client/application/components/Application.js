@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import * as PIXI from 'pixi.js';
-import faker from 'faker';
+import {v4 as uuidv4} from 'uuid';
 window.PIXI = PIXI;
 
 import config from '../config';
+import localstorage from './helpers/localstorage';
 import socialProvider from './social';
 import {actions} from './StateMachine';
 import Client from '../../../common/client';
@@ -18,7 +19,7 @@ import DecisionDialog from './DecisionDialog';
 import {RegisterEvent, JoinEvent, SpinEvent, MakeDecisionEvent, ChatMessageEvent} from '../../../common/events/events';
 import clientEvents from '../../../common/events/client';
 import {setRoom, setSpinResult, setHost, setKisses} from '../store/reducers/room';
-import {setClientId} from '../store/reducers/client';
+import {setClientInfo} from '../store/reducers/client';
 
 const isHost = (state) => _.get(state, 'room.hostMemberId') === _.get(state, 'client.clientId');
 const isInCouple = (state) => isHost(state) || _.get(state, 'room.resultMemberId') === _.get(state, 'client.clientId');
@@ -30,35 +31,23 @@ class Application {
 
         this.client = new Client();
         this.client.init(`${config.server.protocol}://${config.server.host}:${config.server.port}`);
+
+        this._initClientEvents();
+        this._initStateMachineEvents();
+        this._initStoreSubscribe();
     }
 
-    async init() {
-        await loader.load();
-
-        this.pixi = this._initPixi();
-
-        this.members = new MemberList(this.pixi);
-        this.bottle = new Bottle(this.pixi);
-        this.heart = new Heart(this.pixi);
-        this.menu = new Menu(this.pixi);
-        this.mail = new Mail(this.pixi);
-
-        this.decisionDialog = new DecisionDialog(this);
-        this.decisionDialog.onYes(() => {
-            this.decisionDialog.myDecision = true;
-            this.client.sendEvent(new MakeDecisionEvent({ok: true}));
-        });
-        this.decisionDialog.onNo(() => {
-            this.decisionDialog.myDecision = false;
-            this.client.sendEvent(new MakeDecisionEvent({ok: false}));
-        });
-        this.decisionDialog.init();
-
+    _initClientEvents() {
         this.client.on(clientEvents.ERROR, (data) => {
             const p = document.createElement('p');
             p.textContent = `${data.code}: ${data.message}`;
             document.getElementById('errors-wrap').append(p);
-        })
+        });
+
+        this.client.once(clientEvents.REGISTERED, (event) => {
+            this.store.dispatch(setClientInfo(event));
+            this.stateMachine.machine.send('REGISTERED');
+        });
 
         this.client.on(clientEvents.CHAT_NEW_MESSAGE, (data) => {
             const chat = document.getElementById('chat');
@@ -68,15 +57,6 @@ class Application {
             chat.scrollTop = chat.scrollHeight;
         });
 
-        document.getElementById('send').addEventListener('click', () => {
-            this.client.sendEvent(new ChatMessageEvent({message: document.getElementById('text').value}));
-            document.getElementById('text').value = '';
-        });
-
-        this.client.once(clientEvents.REGISTERED, (event) => {
-            this.store.dispatch(setClientId(event));
-            this.stateMachine.machine.send('REGISTERED');
-        });
 
         this.client.on(clientEvents.ROOM, (event) => {
             this.store.dispatch(setRoom(event));
@@ -147,7 +127,9 @@ class Application {
                 }, 3000);
             }
         });
+    }
 
+    _initStateMachineEvents() {
         this.stateMachine.once(actions.REGISTERED, () => {
             this.client.sendEvent(new JoinEvent());
         });
@@ -155,10 +137,6 @@ class Application {
         this.stateMachine.once(actions.JOIN_ROOM, () => {
             console.log('we are in room!');
         });
-
-        // this.stateMachine.on(actions.PREPARE, () => {
-        //     // this.members.reset();
-        // });
 
         this.stateMachine.on(actions.SET_HOST, () => {
             this.members.setHost(this.store.getState().room.hostMemberId);
@@ -175,11 +153,7 @@ class Application {
         this.stateMachine.on(actions.WAIT_DECISION, () => {
             const state = this.store.getState();
 
-            if (isInCouple(state)) {
-                this.decisionDialog.interactive = true;
-            } else {
-                this.decisionDialog.interactive = false;
-            }
+            this.decisionDialog.interactive = isInCouple(state);
         });
 
         this.stateMachine.on(actions.DECISION_READY, () => {
@@ -191,9 +165,51 @@ class Application {
             } else {
                 this.stateMachine.machine.send('VIEWER');
             }
-        })
+        });
+    }
 
-        this._start();
+    _initStoreSubscribe() {
+        this.store.subscribe(() => {
+            const state = this.store.getState();
+
+            // Provide member to member component
+            this.members.list = _.get(state, 'room.members', []);
+
+            this.members.kisses = _.get(state, 'room.kisses', {});
+
+            this.heart.count = _.get(state, `room.kisses.${_.get(state, 'client.clientId')}`, 0);
+
+            // Provide properties to bottle component
+            isHost(state) ? this.bottle.show() : this.bottle.hide();
+        });
+    }
+
+    async init() {
+        await loader.load();
+
+        this.pixi = this._initPixi();
+
+        this.members = new MemberList(this.pixi);
+        this.bottle = new Bottle(this.pixi);
+        this.heart = new Heart(this.pixi);
+        this.menu = new Menu(this.pixi);
+        this.mail = new Mail(this.pixi);
+
+        this.decisionDialog = new DecisionDialog(this);
+        this.decisionDialog.onYes(() => {
+            this.decisionDialog.myDecision = true;
+            this.client.sendEvent(new MakeDecisionEvent({ok: true}));
+        });
+        this.decisionDialog.onNo(() => {
+            this.decisionDialog.myDecision = false;
+            this.client.sendEvent(new MakeDecisionEvent({ok: false}));
+        });
+        this.decisionDialog.init();
+
+        document.getElementById('send').addEventListener('click', () => {
+            this.client.sendEvent(new ChatMessageEvent({message: document.getElementById('text').value}));
+            document.getElementById('text').value = '';
+        });
 
         this.bottle.ee.on(ON_CLICK, () => {
             if (this.stateMachine.matches('inRoom.host')) {
@@ -208,19 +224,7 @@ class Application {
             this.stateMachine.machine.send('WAIT_DECISION')
         });
 
-        this.store.subscribe(() => {
-            const state = this.store.getState();
-
-            // Provide member to member component
-            this.members.list = _.get(state, 'room.memberIds', []);
-
-            this.members.kisses = _.get(state, 'room.kisses', {});
-
-            this.heart.count = _.get(state, `room.kisses.${_.get(state, 'client.clientId')}`, 0);
-
-            // Provide properties to bottle component
-            isHost(state) ? this.bottle.show() : this.bottle.hide();
-        });
+        this._start();
     }
 
     _initPixi() {
@@ -259,8 +263,8 @@ class Application {
 
         let stateClient = this.store.getState().client;
         this.client.sendEvent(new RegisterEvent({
-            socialProvider: socialProvider.hasProvider ? socialProvider.getSocialId() : 'fake',
-            socialId: socialProvider.hasProvider ? socialProvider.getSocialId(): stateClient.clientId,
+            socialProvider: socialProvider.hasProvider ? socialProvider.providerName : 'fake',
+            socialId: socialProvider.hasProvider ? socialProvider.getSocialId(): localstorage.getClientId(uuidv4()),
         }));
     }
 
